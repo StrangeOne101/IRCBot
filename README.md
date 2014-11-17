@@ -8,6 +8,8 @@ In future, will be programmable for others to use as their own bot with their ow
 
 You may use code from this bot to create your own bots, as long as you give me credit if you copy the code.
 
-Used libraries:```
-• javax.json-1.0.4.jar (For JSON config files)```
+Used libraries:
+
+• javax.json-1.0.4.jar (For JSON config files)
+
 • jsoup-1.8.1.jar (For webpage data extraction. Only requried for .dex command)
