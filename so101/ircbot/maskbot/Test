@@ -1,0 +1,325 @@
+#Title: Map based adventure game
+#Author: StrangeOne101
+#Version: v0.1
+#Description: A map based adventure game where players can travel around the world map
+
+import random, sys
+
+mappy = []
+mappy.append("*D***EFB^^^^") # * = desert, F = forest, - = river
+mappy.append("****E^^^GGB^") # O = oasis, D = desert temple
+mappy.append("**PO*^^^GG!^") # G = grass, B = big tree
+mappy.append("*****EB^^^^B") # E = edge of forest/desert
+mappy.append("----*EF^GGGF") # P = palm trees
+mappy.append("WWW----GGGGG")
+mappy.append("WWWWSBGFGGLG") #W = water, C = drowning child
+mappy.append("WWHWWWS?GGFG") # F = field of flowers, H = house
+mappy.append("WWWWWSGGGFGG") # L = Lumber, ? = toolshed.
+mappy.append("WWWCWSFFGGGG") # T = Trex, D = mysterios desert
+
+hydration = 80 #100% = full, 50% small thrist
+
+playerposX = 3 + random.randint(0, 6)
+playerposY = 4 + random.randint(0, 5)
+
+time = 5 #0 is day, 12 = sunset, 13 = darkness arrises, 14 - 23 = night, 24 = sunrise
+
+spade = False
+
+riches = 12
+palmTrees = True
+
+health = 100
+DEBUG = False
+if (DEBUG):
+    print ("DEBUG: X = " + str(playerposX))
+    print ("DEBUG: Y = " + str(playerposY))
+
+lumber = False
+sword = 0
+forgeTime = -1
+
+treeHouses = []
+
+class TreeHouse():
+    x = -1
+    y = -1
+    owned = -1
+    stage = 0
+    kittenPoster = False
+
+def makeTreeHouse(x, y, boolOwned):
+    t = TreeHouse()
+    t.x = x
+    t.y = y
+    t.owned = boolOwned
+    t.stage = 0
+    t.kittenPoster = False
+    return t
+
+
+def isYes(string):
+    string = string.lower()
+    if (string[0] == "y"):
+        return True
+    else:
+        return False    
+    
+def isNight():
+    if (time >= 14 and time <= 23):
+        return True
+    
+def isDay():
+    if (time >= 0 and time <= 11):
+        return True
+
+def printLetter(x, y):
+    global hydration, playerposX, playerposY, mappy, lumber, spade, time, sword, health, riches, palmTrees, forgeTime
+    s = mappy[y][x]
+    if s == "*": #If they are in the desert. Decrease hydration.
+        print("You are in a massive desert")
+        hydration -= 5
+        if (hydration == 0):
+            print("Your dead corpse starts to rot in the desert.")
+            health = 0
+        elif (hydration <= 10):
+            print("Your head starts to spin. You are about to pass out from lack of hydration.")
+        elif (hydration <= 20):
+            print("Your throat is very dry. You will need to find water soon.")
+        elif (hydration <= 30):
+            print("Your quite thirsty.")
+            
+    elif s == "D": #If they find a desert temple
+        i = input("You found a desert temple. Do you want to explore it?\n")
+        if (isYes(i)):
+            print("You found nothing...")
+            
+    elif s == "O": #If they find the oasis
+        i = input("You found a beautiful oasis. Swim in it?\n")
+        if (isYes(i)):
+            hydration = 100
+            print("You take a dip and rehydrate yourself!")
+            
+    elif s == "-": #They find the river
+        print("You cross a river.")
+        
+    elif s == "S": #They find a shore
+        print("You are on a sandy shore.")
+        
+    elif s == "W": #They swim in the sea
+        print("You find yourself swimming in the sea.")
+        
+    elif s == "C": #They find a drowning child
+        i = input("You find a child drowning in the water. Do you wish to save it?\n")
+        if (isYes(i)):
+            print("The child drowns anyway...")
+        else:
+            print("The child drowns.")
+    
+    elif s == "^": #If they in a forest
+        if (random.randint(0, 7) == 0 and isDay()):
+            print("You are in a forest. You see a squirel in a nearby tree.")
+        elif (random.randint(0, 6) == 0 and isDay()):
+            print("You are in a forest. You can hear the birds sing.")
+        elif (random.randint(0, 4) == 0 and isNight()):
+            print("You are in a forest. It is very dark.")            
+        elif (random.randint(0, 5) == 0 and isNight()):
+            print("You are in a forest. You can hear an owl hooting in the distance.")
+        else:
+            print("You are in a forest.")
+           
+    elif s == "B": #If they find a big tree.
+        i = input("You are in a forest with a big tree ahead of you. Do you wish to climb the tree?\n")
+        foundTreeHouse = False
+        ownedTreeHouse = None
+        nonOwnedTreeHouse = None
+        for i1 in treeHouses:
+            if (i1.owned == False):
+                foundTreeHouse = True
+                nonOwnedTreeHouse = i1
+            else:
+                ownedTreeHouse = i1
+            
+        if (isYes(i) and random.randint(0, 4) == 0 and nonOwnedTreeHouse == None):
+            if (hydration <= 95):
+                hydration += 5
+            print("You find a secret treehouse. Someone has been here before.")
+            treeHouses.append(makeTreeHouse(x, y, False))
+        elif (foundTreeHouse == True and nonOwnedTreeHouse.x == x and nonOwnedTreeHouse.y == y):
+            print("You find a secret treehouse. Seems to be the one you found before.")
+        elif (isYes(i) and lumber == False):
+            if (hydration <= 95):
+                hydration += 5            
+            print("You climb the tree. This tree would make a great treehouse!")
+        elif (isYes(i) and nonOwnedTreeHouse != None and nonOwnedTreeHouse.x != x and nonOwnedTreeHouse.y != y):
+            if (random.randint(0, 4) == 0):
+                print("You climb the tree. There is an angry monkey throwing bananas at you!")
+            else:
+                print("You climb the tree. There's nothing here.")
+        elif (isYes(i) and lumber == True and ownedTreeHouse == None):
+            i3 = input("You climb the tree. This tree would make a great treehouse! Make a treehouse with the wood you found?\n")
+            if (isYes(i3)):
+                print("You make a treehouse.")
+                treeHouses.append(makeTreeHouse(x, y, True))
+            else:
+                print("You climb down the tree.")
+        elif (isYes(i) and ownedTreeHouse != None and ownedTreeHouse.x == x and ownedTreeHouse.y == y):
+            i2 = input("You found your treehouse again. Hang a kitten poster on the wall?\n")
+            if (isYes(i2)):
+                ownedTreeHouse.stage = 1
+                ownedTreeHouse.kittenPoster = True
+    
+
+    elif s == "G": #In a field
+        if (isNight() and random.randint(0, 2) == 0):
+            print("You are in a field of grass. The stars shine brightly above.")
+        elif (isDay() and random.randint(0,2)==0):
+            print("You are in a field of grass. You can hear the crickets cherping.")
+        else:    
+            print("You are in a field of grass.")
+
+    elif s == "H": #If they find a weird house
+        i = input("You find an old house above the water. Do you wish to enter?\n")
+        if (isYes(i)):
+            i = input("An old woman is inside. She offers you a glass of water. Accept it?\n")
+            if (isYes(i)):
+                if (random.randint(0, 3) == 0):
+                    print("Oh no! The water was poisoned! Your eyes start to close and you feel your heart start to slow. You are dead.")
+                    health = 0
+                else:
+                    print("You feel greatly refreshed.")
+                    if (hydration <= 70):
+                        hydration += 30   
+                    else:
+                        hydration = 100
+            else:
+                print("You refuse and the woman throws the glass at you. What a b*tch.")
+                
+    elif s == "F": #Field of flowers
+        print("You are in a field of flowers. They smell nice!")
+        
+    elif s == "E": #Edge of desert/forest
+        print("You are on the edge of a forest and a desert.")
+        
+    elif s == "L": #Pile of lumber  
+        if (lumber == False):
+            i = input("You find a pile of wood in a field of grass. Take it?\n")
+            if (isYes(i)):
+                lumber = True
+                print("You take the wood.")
+            else:
+                lumber = False
+        else:
+            print("You are in a field of grass.")
+         
+    elif s == "?": #Toolshed
+        i2 = input("You find a toolshed. Go in?\n")
+        if (isYes(i2) and spade == False):
+            i3 = input("There is a spade. Take the spade?\n")
+            if (isYes(i3)):
+                print("You take the spade.")
+                spade = True
+        elif (isYes(i2)):
+            print("It is empty.")
+            
+    elif s == "!":  #Forge      
+        if (time % 5 == 0 and isDay()):
+            if (isYes(input("You find a smelting forge. The forges are smoking hard. Go inside?\n"))):
+                if (isYes(input("There is a dwarf working hard in the forge. Talk to him?\n"))):
+                    if (riches >= 10 and sword != 2 and forgeTime == -1):
+                        if (isYes(input("The dwarf refuses to talk to you. Show him your loot?\n"))):
+                            print("The dwarf offers you a deal for some of your loot.")
+                            if (isYes(input("He says he will make you a light platinum sword for 10 gold coins. Accept the trade?\n"))):
+                                print("The dwarf takes 10 gold coins and tells you to come back in a few days.\nThe dwarf starts the forges again as you exit the building.")
+                                riches -= 10
+                                forgeTime = 0
+                    if (forgeTime >= 20 and sword != 2):
+                        if (isYes(input("\"Oh, it's you. I got your sword. Still want it?\"\n"))):
+                            print("You obtain the light platnium sword.")
+                            sword = 2
+                        else:
+                            print("\"Fine. Come back when you want it.\"")
+                    else:
+                        print("The dwarf refuses to talk to you.\nHe says to come back when you have something worth of his time.")
+                else:
+                    print("You leave the forge quietly.")
+        elif (isNight() and sword == 0 and forgeTime == -1):
+            if (isYes(input("You find a smelting forge. Go inside?\n"))):
+                if (isYes(input("There is dwarf sleeping in the forge. He is holding a blue sword. Steal the sword?\n"))):
+                    if (random.randint(0,4) == 0):
+                        print("You manage to steal the sword and exit the forge.")
+                        sword = 1
+                        hasSword = True
+                    else:
+                        print("To attempt to take the sword but the dwarf awakes. Anger rages in his eyes as he wields the sword high and cuts off your head. You are dead.")
+                        health = 0
+                else:
+                    print("You exit quietly.")
+        elif(isNight()):
+            if (isYes(input("You find a smelting forge. Go inside?\n"))):   
+                print("There is a dwarf sleeping in the forge. Better exit and leave him alone.")
+        else:
+            if (isYes(input("You find a smelting forge. It seems quiet. Go inside anyway?\n"))):
+                print ("Is is empty.")
+                
+    else: #Error in map
+        print("You are forever lost...")
+    if (health != 0):
+        travel()    
+        
+def travel():
+    global hydration, playerposX, playerposY, mappy, time
+    d = input("Where do you wish to travel? North, south, east, west or quit.\n")
+
+    while (d == ""):
+        d = input()
+    
+    d = d.lower()[0]
+    if (d == "n"):
+        if (playerposY > 0):
+            playerposY -= 1
+        else:
+            print("You end up going the wrong way and go south.")
+            playerposY += 1
+    elif (d == "s"):
+        if (playerposY < 9):
+            playerposY += 1
+        else:
+            print("You end up going the wrong way and go north.")
+            playerposY -= 1
+    elif (d == "e"):
+            if (playerposX < 11):
+                playerposX += 1
+            else:
+                print("You end up going the wrong way and go west.")
+                playerposX -= 1
+    elif (d == "w"):
+        if (playerposX > 0):
+            playerposX -= 1
+        else:
+            print("You end up going the wrong way and go east.")
+            playerposX += 1             
+    elif (d == "q"):
+        input("You realise the map was in your pocket all along. You find the way out of this world and escape. Press ENTER to continue...\n")
+        health = 0
+    else:
+        print("\""+d+"\" is not recognised as a direction.")
+        travel()
+    printTime()    
+    printLetter(playerposX, playerposY)
+    
+def printTime():
+    global time, forgeTime, sword
+    if (time == 12):
+        print("The sun starts to descend from the sky.")
+    elif (time == 13):
+        print("The sun sets and stars come out in the night.")
+    elif (time == 23):
+        print("The sun begins to rise and the night fades away.")
+        time = -1
+    time += 1    
+    if (isNight() == False and forgeTime >= 0 and sword != 2):
+        forgeTime += 1
+travel()    
+    
+        
