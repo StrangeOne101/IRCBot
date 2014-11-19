@@ -42,7 +42,7 @@ public class ChatHandler implements ICommandHandler
 			List<String> endswith = new ArrayList<String>();
 			for (String s1 : args)
 			{
-				if (s1.startsWith("-"))
+				if (s1.startsWith("-") || args[args.length - 1].equals(s1))
 				{
 					if (!curFormat.equals(""))
 					{
@@ -62,8 +62,11 @@ public class ChatHandler implements ICommandHandler
 							reply = thingToLookFor;	
 						}
 					}
-					curFormat = s1;
-					
+					if (!args[args.length - 1].equals(s1))
+					{
+						curFormat = s1;
+					}
+					thingToLookFor = "";
 				}
 				else
 				{
