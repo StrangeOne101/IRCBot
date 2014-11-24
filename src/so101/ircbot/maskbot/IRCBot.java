@@ -37,8 +37,11 @@ public class IRCBot
 	//private String password = "";//"StrangeBotCo";
 	private String host = "irc.esper.net";
 	
+	protected BotSettings management;
+	
+	protected List<String> threadedLogs = new ArrayList<String>();
+	
 	private int port = 6667;
-	private boolean connectOn;
 	
 	private static Socket chatSocket;
 	private static BufferedReader fromServer;
@@ -103,7 +106,11 @@ public class IRCBot
 	public IRCBot() 
 	{
 		this.instance = this;
+		this.management = new BotSettings();
 		new IRCLog();
+		IRCBot.log("Loading data from config", Level.INFO);
+		ConfigSettings.loadData();
+		IRCBot.log("Data loaded.", Level.INFO);
 		IRCBot.log("Starting IRC Bot MaskBot", Level.INFO);
 		this.connect();
 		IRCBot.log("Starting local thread", Level.INFO);
@@ -120,11 +127,9 @@ public class IRCBot
 		IRCBot.log("Initing Map Game Data", Level.INFO);
 		new MapGame();
 		
-		IRCBot.log("Loading data from config", Level.INFO);
-		ConfigSettings.loadData();
-		IRCBot.log("Data loaded.", Level.INFO);
-		
+		IRCBot.log("Loading Dictionary Data", Level.INFO);
 		DictionaryManager.loadData();
+		IRCBot.log("Dictionary Data Loaded.", Level.INFO);
 		
 		IRCBot.log("Registering Commands", Level.INFO);
 		//CommandRegistry.registerCommand(new CommandJoin());
@@ -136,6 +141,8 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandReply("beep", "Boop!"));
 		CommandRegistry.registerCommand(new CommandReply("MaskBot play", "If you're looking to play a game, try \"MaskBot games play <game>\""));
 		CommandRegistry.registerCommand(new CommandReply(".bing", "You're trying to use bing... You know that?"));
+		CommandRegistry.registerCommand(new CommandReply(".squid", "So you like squids, eh? http://i.imgur.com/daYZgQL.jpg"));
+		CommandRegistry.registerCommand(new Command5050());
 		CommandRegistry.registerCommand(new CommandSay());
 		//CommandRegistry.registerCommand(new CommandLeave());
 		CommandRegistry.registerCommand(new CommandGame());
@@ -188,7 +195,7 @@ public class IRCBot
 			IRCBot.log("Joining " + s, Level.INFO);
 			this.sendToIRC("JOIN " + s);
 		}
-		
+		IRCLog.forceSaveLog();
 		//ConfigSettings.testYaml();
 		
 	}
@@ -211,7 +218,6 @@ public class IRCBot
 			chatSocket = new Socket(host, port);
 			fromServer = new BufferedReader(new InputStreamReader(chatSocket.getInputStream()));
             toServer = new PrintWriter(new OutputStreamWriter(chatSocket.getOutputStream()));
-            connectOn = true;
 		}
 		catch(IOException e)
 		{
@@ -277,6 +283,7 @@ public class IRCBot
 				if (line != null)
 				{
 					processLineFromServer(line);
+					this.threadedLogs.add(line);
 				}
 				else
 				{
@@ -457,6 +464,7 @@ public class IRCBot
 					writer.close();
 				} catch (IOException e1) {}
 				e.printStackTrace();
+				IRCLog.forceSaveLog();
 			}
 			boolean flag = false;
 		}
@@ -476,5 +484,24 @@ public class IRCBot
 	public static void log(String line, Level level)
 	{
 		System.out.println("[" + level.toString() + "] " + line);
+	}
+	
+	/**Returns the nickname of the bot.*/
+	public static String getNick()
+	{
+		return (String) IRCBot.getInstance().management.getBotGlobalVariable("NICK");
+	}
+	
+	/**Alerts all root users the following String*/
+	public static void alertRoots(String string)
+	{
+		for (String s : PermissionsManager.permissionTable.keySet())
+		{
+			if (PermissionsManager.permissionTable.get(s) >= 4)
+			{
+				String s1 = string.replaceAll("%s", s);
+				IRCBot.getInstance().sendToIRC("PRIVMSG " + s + " :" + s1);
+			}
+		}
 	}
 }
