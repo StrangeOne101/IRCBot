@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.json.Json;
@@ -15,6 +17,8 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonWriter;
+import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonGeneratorFactory;
 
 import so101.ircbot.maskbot.games.MapGame;
 import so101.ircbot.maskbot.games.Player;
@@ -63,6 +67,29 @@ public class ConfigSettings
 		}
 		JsonObject perms = permBuilder.build();
 		
+		JsonObjectBuilder globalVarBuilder = Json.createObjectBuilder();
+		for (String s9 : IRCBot.getInstance().management.BOT_CRESIDENTIALS.keySet())
+		{
+			if (IRCBot.getInstance().management.BOT_CRESIDENTIALS.get(s9) instanceof String)
+			{
+				globalVarBuilder.add(s9, (String)IRCBot.getInstance().management.BOT_CRESIDENTIALS.get(s9));
+			}
+			else if (IRCBot.getInstance().management.BOT_CRESIDENTIALS.get(s9) instanceof Integer)
+			{
+				globalVarBuilder.add(s9, (Integer)IRCBot.getInstance().management.BOT_CRESIDENTIALS.get(s9));
+			}
+			else if (IRCBot.getInstance().management.BOT_CRESIDENTIALS.get(s9) instanceof Boolean)
+			{
+				globalVarBuilder.add(s9, (Boolean)IRCBot.getInstance().management.BOT_CRESIDENTIALS.get(s9));
+			}
+			else
+			{
+				IRCBot.log("Tried to load global variable of unknown type!", Level.WARNING);
+			}
+			
+		}
+		JsonObject vars = permBuilder.build();
+		
 		JsonObjectBuilder playersBuilder = Json.createObjectBuilder();
 		for (String k : MapGame.instance.playerFiles.keySet())
 		{
@@ -91,9 +118,14 @@ public class ConfigSettings
 		try 
 		{
 			writer = new FileWriter(file);
-			JsonWriter jsonwriter = Json.createWriter(writer);
-			jsonwriter.writeObject(json);
-			jsonwriter.close();
+			Map<String, Object> properties = new HashMap<String, Object>(1);
+	        properties.put(JsonGenerator.PRETTY_PRINTING, true);
+	        JsonGeneratorFactory jgf = Json.createGeneratorFactory(properties);
+	        JsonGenerator jg = jgf.createGenerator(writer);
+	        
+			//JsonWriter jsonwriter = Json.createWriter(writer);
+			//jsonwriter.writeObject(json);
+			//jsonwriter.close();
 			writer.close();
 		} 
 		catch (IOException e) 
