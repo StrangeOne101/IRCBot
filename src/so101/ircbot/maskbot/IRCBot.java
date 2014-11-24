@@ -49,7 +49,7 @@ public class IRCBot
 	
 	public List<Runnable> onLoadThreads = new ArrayList<Runnable>();
 	
-	private boolean enabled = true;
+	public boolean enabled = true;
 	private boolean shutdown = false;
 	private boolean connected = false;
 	
@@ -110,6 +110,11 @@ public class IRCBot
 		new IRCLog();
 		IRCBot.log("Loading data from config", Level.INFO);
 		ConfigSettings.loadData();
+		
+		if (!this.enabled)
+		{
+			return;
+		}
 		IRCBot.log("Data loaded.", Level.INFO);
 		IRCBot.log("Starting IRC Bot MaskBot", Level.INFO);
 		this.connect();
@@ -489,7 +494,7 @@ public class IRCBot
 	/**Returns the nickname of the bot.*/
 	public static String getNick()
 	{
-		return (String) IRCBot.getInstance().management.getBotGlobalVariable("NICK");
+		return (String) IRCBot.getInstance().management.getBotGlobalVariable("NICK").toString();
 	}
 	
 	/**Alerts all root users the following String*/

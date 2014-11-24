@@ -13,10 +13,12 @@ import java.util.logging.Level;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonWriter;
+import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
 
@@ -88,7 +90,7 @@ public class ConfigSettings
 			}
 			
 		}
-		JsonObject vars = permBuilder.build();
+		JsonObject vars = globalVarBuilder.build();
 		
 		JsonObjectBuilder playersBuilder = Json.createObjectBuilder();
 		for (String k : MapGame.instance.playerFiles.keySet())
@@ -113,20 +115,23 @@ public class ConfigSettings
 				.add("MutedChannels", arrays[1])
 				.add("Permissions", perms)
 				.add("MapGamePlayers", mapGamePlayers)
+				.add("GlobalVars", vars)
 				.build();
 		FileWriter writer;
 		try 
-		{
-			writer = new FileWriter(file);
+		{        
+	        writer = new FileWriter(file);
 			Map<String, Object> properties = new HashMap<String, Object>(1);
 	        properties.put(JsonGenerator.PRETTY_PRINTING, true);
-	        JsonGeneratorFactory jgf = Json.createGeneratorFactory(properties);
-	        JsonGenerator jg = jgf.createGenerator(writer);
-	        
+	        JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+			JsonWriter jsonWriter = writerFactory.createWriter(writer);
+			jsonWriter.writeObject(json);
+			jsonWriter.close();
+			writer.close();
 			//JsonWriter jsonwriter = Json.createWriter(writer);
 			//jsonwriter.writeObject(json);
 			//jsonwriter.close();
-			writer.close();
+			//writer.close();
 		} 
 		catch (IOException e) 
 		{
@@ -151,21 +156,32 @@ public class ConfigSettings
 				JsonArray jArrayChatCmds = json.getJsonArray("ChatCommands");
 				JsonObject jObjectPerms = json.getJsonObject("Permissions");
 				JsonObject jObjectMGPlayers = json.getJsonObject("MapGamePlayers");
+				JsonObject jObjectGlobalVars = json.getJsonObject("GlobalVars");
+				reader.close();
 				
-				for (int i = 0; i < jArrayChannels.size(); i++)
+				if (jArrayChannels != null)
 				{
-					IRCBot.getInstance().channels.add(jArrayChannels.getString(i));
-					IRCBot.getInstance().currentChannels.add(jArrayChannels.getString(i));
+					for (int i = 0; i < jArrayChannels.size(); i++)
+					{
+						IRCBot.getInstance().channels.add(jArrayChannels.getString(i));
+						IRCBot.getInstance().currentChannels.add(jArrayChannels.getString(i));
+					}
 				}
 				
-				for (int i = 0; i < jArrayMutedChannels.size(); i++)
+				if (jArrayMutedChannels != null)
 				{
-					IRCBot.getInstance().mutedChannels.add(jArrayMutedChannels.getString(i));
+					for (int i = 0; i < jArrayMutedChannels.size(); i++)
+					{
+						IRCBot.getInstance().mutedChannels.add(jArrayMutedChannels.getString(i));
+					}
 				}
 				
-				for (int i = 0; i < jArrayChatCmds.size(); i++)
+				if (jArrayChatCmds != null)
 				{
-					CommandRegistry.chatCommands.add(jArrayChatCmds.getString(i));
+					for (int i = 0; i < jArrayChatCmds.size(); i++)
+					{
+						CommandRegistry.chatCommands.add(jArrayChatCmds.getString(i));
+					}
 				}
 				
 				try 
@@ -185,17 +201,68 @@ public class ConfigSettings
 				}
 				catch (NullPointerException e) {}
 				
-				try 
+				if (jObjectGlobalVars != null)
+				{
+					for (String l : jObjectGlobalVars.keySet())
+					{
+						IRCBot.getInstance().management.setGolbalBotVariable(l, jObjectGlobalVars.get(l));
+					}
+					
+					//If username and nickname aren't found
+					if (!IRCBot.getInstance().management.isCresidentialsValid())
+					{
+						lackOfInfoShutdown();
+					}
+				}
+				else
+				{
+					lackOfInfoShutdown();
+				}
+
+				if (jObjectPerms != null)
 				{
 					for (String j : jObjectPerms.keySet())
 					{
 						PermissionsManager.permissionTable.put(j, jObjectPerms.getInt(j));
 					}
 				}
-				catch (NullPointerException e) {}
-				
 			} 
-			catch (FileNotFoundException e) {}
+			catch (FileNotFoundException e) {} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		else
+		{
+			lackOfInfoShutdown();
+		}
+	}
+	
+	private static void lackOfInfoShutdown()
+	{
+		File file = new File("config.cfg");
+		IRCBot.log("Cresidentials required for bot not found!", Level.SEVERE);
+		IRCBot.log("Bot will not attempt to connect to server and will shutdown shortly!", Level.SEVERE);
+		IRCBot.log("Config file will be regenerated with required fields. Password field is optional and is not required.", Level.INFO);
+		IRCBot.log("Shutting down bot...", Level.INFO);
+		
+		FileWriter writer;
+		try 
+		{
+			writer = new FileWriter(file);
+			Map<String, Object> properties = new HashMap<String, Object>(1);
+	        properties.put(JsonGenerator.PRETTY_PRINTING, true);
+	        JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+			JsonWriter jsonWriter = writerFactory.createWriter(writer);
+			jsonWriter.writeObject(Json.createObjectBuilder().add("GlobalVars", IRCBot.getInstance().management.buildRequiredVars()).build());
+			jsonWriter.close();
+			writer.close();
+			
+			IRCLog.INSTANCE.shutdownLogger();
+			IRCBot.getInstance().enabled = false;
+		} 
+		catch (IOException e) 
+		{
 		}
 	}
 }

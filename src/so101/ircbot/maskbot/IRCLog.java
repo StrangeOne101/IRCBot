@@ -87,6 +87,7 @@ public class IRCLog
 			for (String s : IRCBot.getInstance().threadedLogs)
 			{
 				output.append(s);
+				output.append("\n");
 			}
 			output.close();
 			IRCBot.getInstance().threadedLogs.clear();
