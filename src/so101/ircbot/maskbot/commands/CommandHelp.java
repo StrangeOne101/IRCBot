@@ -14,7 +14,7 @@ public class CommandHelp implements IBotCommand {
 	@Override
 	public boolean execute(String[] args, ChannelSender sender) 
 	{
-		sender.sendToChannel("List of commands: channels games game help say msg self .dex .bing .random");
+		sender.sendToChannel("List of commands: channels games game help say msg self .dex .bing .random .squid .5050");
 		return true;
 	}
 
@@ -31,8 +31,8 @@ public class CommandHelp implements IBotCommand {
 	}
 
 	@Override
-	public int getPermissionLevel() {
-		// TODO Auto-generated method stub
+	public int getPermissionLevel() 
+	{
 		return 0;
 	}
 
