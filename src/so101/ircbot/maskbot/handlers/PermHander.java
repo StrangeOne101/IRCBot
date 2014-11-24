@@ -39,11 +39,11 @@ public class PermHander implements ICommandHandler
 										sender.sendToChannel(sender.senderName + ": You can not set a permission level to something higher than your own");
 										return true;
 									}
-									if (PermissionsManager.permissionTable.containsKey(args[1]))
+									if (PermissionsManager.permissionTable.containsKey(args[1].toLowerCase()))
 									{
-										PermissionsManager.permissionTable.remove(args[1]);
+										PermissionsManager.permissionTable.remove(args[1].toLowerCase());
 									}
-									PermissionsManager.permissionTable.put(args[1], Integer.parseInt(args[2]));
+									PermissionsManager.permissionTable.put(args[1].toLowerCase(), Integer.parseInt(args[2]));
 									sender.sendToChannel(sender.senderName + ": Permission level for " + args[1] + " set.");
 								}
 								else
@@ -53,9 +53,9 @@ public class PermHander implements ICommandHandler
 							}
 							else
 							{
-								if (PermissionsManager.permissionTable.containsKey(args[1]))
+								if (PermissionsManager.permissionTable.containsKey(args[1].toLowerCase()))
 								{
-									sender.sendToChannel(sender.senderName + ": Permission level for " + args[1] + " is " + PermissionsManager.permissionTable.get(args[1]));
+									sender.sendToChannel(sender.senderName + ": Permission level for " + args[1] + " is " + PermissionsManager.permissionTable.get(args[1].toLowerCase()));
 								}
 								else
 								{

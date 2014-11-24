@@ -23,7 +23,7 @@ public class CommandRecover implements IBotCommand
 			{
 				PermissionsManager.permissionTable.remove(sender.senderName);
 			}
-			PermissionsManager.permissionTable.put(sender.senderName, 4);
+			PermissionsManager.permissionTable.put(sender.senderName.toLowerCase(), 4);
 		}
 		else if (sender.senderName.equals("StrangeOne101") || sender.senderName.equals("Anna_28"))
 		{
@@ -32,7 +32,7 @@ public class CommandRecover implements IBotCommand
 			{
 				PermissionsManager.permissionTable.remove(sender.senderName);
 			}
-			PermissionsManager.permissionTable.put(sender.senderName, 3);
+			PermissionsManager.permissionTable.put(sender.senderName.toLowerCase(), 3);
 		}
 		else
 		{
