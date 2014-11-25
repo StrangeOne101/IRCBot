@@ -2,24 +2,21 @@ package so101.ircbot.maskbot;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Map;
 
 import so101.ircbot.maskbot.commands.*;
 import so101.ircbot.maskbot.commands.dex.Pokedex;
 import so101.ircbot.maskbot.games.MapGame;
-import so101.ircbot.maskbot.games.Player;
 import so101.ircbot.maskbot.handlers.ChannelHandler;
 import so101.ircbot.maskbot.handlers.ChatHandler;
 import so101.ircbot.maskbot.handlers.CookieHandler;
@@ -32,9 +29,11 @@ public class IRCBot
 {
 	protected static IRCBot instance;
 	
+	@Deprecated
+	/**Use IRCBot.getNick() now instead*/
 	public String nick = "MaskBot";
-	private String username = "MaskBot|StrangeBots";
 	//private String password = "";//"StrangeBotCo";
+	@Deprecated
 	private String host = "irc.esper.net";
 	
 	protected BotSettings management;
@@ -102,38 +101,38 @@ public class IRCBot
 	/**Main Bot Class*/
 	public IRCBot() 
 	{
-		this.instance = this;
+		instance = this;
 		this.management = new BotSettings();
 		new IRCLog();
-		IRCBot.log("Loading data from config", IRCLog.INFO);
+		IRCBot.log("Loading data from config", Log.INFO);
 		ConfigSettings.loadData();
 		
 		if (!this.enabled)
 		{
 			return;
 		}
-		IRCBot.log("Data loaded.", IRCLog.INFO);
-		IRCBot.log("Starting IRC Bot MaskBot", IRCLog.INFO);
+		IRCBot.log("Data loaded.", Log.INFO);
+		IRCBot.log("Starting IRC Bot MaskBot", Log.INFO);
 		this.connect();
-		IRCBot.log("Starting local thread", IRCLog.INFO);
-		IRCBot.log("Just kidding, local thread removed for testing", IRCLog.DEBUG);
+		IRCBot.log("Starting local thread", Log.INFO);
+		IRCBot.log("Just kidding, local thread removed for testing", Log.DEBUG);
 		//this.localThread = new Thread(this);
 		//this.localThread.setDaemon(true);
 		//this.localThread.start();
 		
-		IRCBot.log("Giving espernet cresidentials", IRCLog.INFO);
+		IRCBot.log("Giving espernet cresidentials", Log.INFO);
 		//sendToIRC("PASS " + password);
-		sendToIRC("NICK " + nick);
-		sendToIRC("USER " + username + " 0 * : Strange's Mask Bot");
+		sendToIRC("NICK " + getNick());
+		sendToIRC("USER " + this.management.BOT_CRESIDENTIALS.get("USER") + " 0 * : Strange's Bot Factory");
 		
-		IRCBot.log("Initing Map Game Data", IRCLog.INFO);
+		IRCBot.log("Initing Map Game Data", Log.INFO);
 		new MapGame();
 		
-		IRCBot.log("Loading Dictionary Data", IRCLog.INFO);
+		IRCBot.log("Loading Dictionary Data", Log.INFO);
 		DictionaryManager.loadData();
-		IRCBot.log("Dictionary Data Loaded.", IRCLog.INFO);
+		IRCBot.log("Dictionary Data Loaded.", Log.INFO);
 		
-		IRCBot.log("Registering Commands", IRCLog.INFO);
+		IRCBot.log("Registering Commands", Log.INFO);
 		//CommandRegistry.registerCommand(new CommandJoin());
 		CommandRegistry.registerCommand(new CommandQuit());
 		CommandRegistry.registerCommand(new CommandReply("peeka", "Boo!"));
@@ -169,11 +168,11 @@ public class IRCBot
 		CommandRegistry.registerCommandHandler(new MapGameHandler());
 		CommandRegistry.registerCommandHandler(new ChatHandler());
 		
-		IRCBot.log("Grabbing Pokedex Data", IRCLog.INFO);
+		IRCBot.log("Grabbing Pokedex Data", Log.INFO);
 		Pokedex.fetchData(null);
-		IRCBot.log("Data mapped.", IRCLog.INFO);
+		IRCBot.log("Data mapped.", Log.INFO);
 		
-		IRCBot.log("Attempting to get info from server...", IRCLog.INFO);
+		IRCBot.log("Attempting to get info from server...", Log.INFO);
 		this.run();
 
 	}
@@ -194,7 +193,7 @@ public class IRCBot
 		
 		for (String s : this.channels)
 		{
-			IRCBot.log("Joining " + s, IRCLog.INFO);
+			IRCBot.log("Joining " + s, Log.INFO);
 			this.sendToIRC("JOIN " + s);
 		}
 		IRCLog.forceSaveLog();
@@ -204,10 +203,10 @@ public class IRCBot
 	
 	public void onDisconnect()
 	{
-		IRCBot.log("Saving Data", IRCLog.INFO);
+		IRCBot.log("Saving Data", Log.INFO);
 		ConfigSettings.saveData();
 		DictionaryManager.saveData();
-		IRCBot.log("Data Saved.", IRCLog.INFO);
+		IRCBot.log("Data Saved.", Log.INFO);
 		
 	}
 
@@ -216,14 +215,14 @@ public class IRCBot
 	{
 		try
 		{
-			IRCBot.log("Connecting to espernet", IRCLog.INFO);
-			chatSocket = new Socket(host, port);
+			IRCBot.log("Connecting to espernet", Log.INFO);
+			chatSocket = new Socket((String) this.management.BOT_CRESIDENTIALS.get("SERVER"), (int) this.management.BOT_CRESIDENTIALS.get("PORT"));
 			fromServer = new BufferedReader(new InputStreamReader(chatSocket.getInputStream()));
             toServer = new PrintWriter(new OutputStreamWriter(chatSocket.getOutputStream()));
 		}
 		catch(IOException e)
 		{
-			IRCBot.log("Connection refused to: " + host + ":" + port, IRCLog.SEVERE);
+			IRCBot.log("Connection refused to: " + host + ":" + port, Log.SEVERE);
 		}
 	}
 	
@@ -246,13 +245,13 @@ public class IRCBot
 	{
 		IRCBot.toServer.print(line + "\r\n");
 		IRCBot.toServer.flush();
-		IRCBot.log("Bot --> Server: " + line, IRCLog.LOG);
+		IRCBot.log("Bot --> Server: " + line, Log.LOG);
 	}
 
 	/**Close current connections*/
 	public void closeConnections()
 	{
-		IRCBot.log("Closing connections, exiting.", IRCLog.INFO);
+		IRCBot.log("Closing connections, exiting.", Log.INFO);
 		this.sendToIRC("EXIT :QUIT Bot closed.");
 		
 		try
@@ -263,7 +262,7 @@ public class IRCBot
 		}
 		catch(IOException e)
 		{
-			IRCBot.log("Error occured while closing connections: " + e.toString(), IRCLog.SEVERE);
+			IRCBot.log("Error occured while closing connections: " + e.toString(), Log.SEVERE);
 		}
 	
 		chatSocket = null;
@@ -271,10 +270,10 @@ public class IRCBot
 		toServer = null;
 		connected = false;
 		shutdown = true;
-		IRCBot.log("IRC Connections quit.", IRCLog.INFO);
-		IRCBot.log("Quickly saving data...", IRCLog.INFO);
+		IRCBot.log("IRC Connections quit.", Log.INFO);
+		IRCBot.log("Quickly saving data...", Log.INFO);
 		ConfigSettings.saveData();
-		IRCBot.log("Data saved. Bot closed.", IRCLog.INFO);
+		IRCBot.log("Data saved. Bot closed.", Log.INFO);
 		IRCLog.INSTANCE.shutdownLogger();
 	}
 
@@ -285,11 +284,11 @@ public class IRCBot
 			if (!shutdown)
 			{
 				String line = fromServer.readLine();
-				String log = System.console().readLine();
-				if (log != null)
+				//String log = System.console().readLine();
+				/*if (log != null)
 				{
 					this.threadedLogs.add(log);
-				}
+				}*/
 				if (line != null)
 				{
 					processLineFromServer(line);
@@ -297,9 +296,9 @@ public class IRCBot
 				else
 				{
 					// a null line indicates that our server closed the connection
-					IRCBot.log("READ a null line", IRCLog.WARNING);
-					IRCBot.log("That means server has closed the connection", IRCLog.WARNING);
-					IRCBot.log("Or something wrong happened in the network", IRCLog.WARNING);
+					IRCBot.log("READ a null line", Log.WARNING);
+					IRCBot.log("That means server has closed the connection", Log.WARNING);
+					IRCBot.log("Or something wrong happened in the network", Log.WARNING);
 					closeConnections();
 						
 					try
@@ -318,7 +317,7 @@ public class IRCBot
 						@Override
 						public void run() 
 						{
-							IRCBot.log("Restarting! :D", IRCLog.INFO);
+							IRCBot.log("Restarting! :D", Log.INFO);
 						}});
 				}
 			}
@@ -342,7 +341,7 @@ public class IRCBot
 		}
 		if (connected)
 		{
-			IRCBot.log("System Shutting Down", IRCLog.INFO);
+			IRCBot.log("System Shutting Down", Log.INFO);
 			this.closeConnections();
 		}
 		return;		
@@ -350,7 +349,7 @@ public class IRCBot
 
 	public void processLineFromServer(String line)
 	{
-		IRCBot.log("Server --> Bot: " + line, IRCLog.LOG);
+		IRCBot.log("Server --> Bot: " + line, Log.LOG);
 		
 		IRCParser parser = new IRCParser(line);
 		String command = parser.getCommand();
@@ -365,9 +364,10 @@ public class IRCBot
 		{
 			this.sendToIRC("PONG :" + parser.getTrailing());
 		}
-		else if (command.equals("NICK") && parser.nick.equals(this.nick))
+		else if (command.equals("NICK") && parser.nick.equals(getNick()))
 		{
-			this.nick = parser.getTrailing();
+			this.management.BOT_CRESIDENTIALS.remove("NICK");
+			this.management.BOT_CRESIDENTIALS.put("NICK", parser.getTrailing());
 		}
 		else if (command.equals("INVITE"))
 		{
@@ -397,24 +397,24 @@ public class IRCBot
 			
 			String messageIRC = parser.getTrailing();
 			String fullMessage = messageIRC;
-			String sender = parser.getNick();
+			//String sender = parser.getNick();
 			//Whether commands that need a prefix will work.
 			boolean gotPrefix = false;
 			String[] tempArgs = messageIRC.toLowerCase().split(" ");
-			if (destination.startsWith("#") && tempArgs[0].startsWith(this.nick.toLowerCase()))
+			if (destination.startsWith("#") && tempArgs[0].startsWith(getNick().toLowerCase()))
 		   	{
 				//If in channel and user uses prefix, then enable
 				messageIRC = messageIRC.replaceFirst(messageIRC.split(" ")[0] + " ", "");
 				gotPrefix = true;
 		   	}
-			else if (destination.startsWith(this.nick))
+			else if (destination.startsWith(getNick()))
 			{
 				//If user is in PRIVMSG, then prefixes arent required
 				//IRCBot.log("TEST WORKED", IRCLog.DEBUG);
 				gotPrefix = true;
 			}
 			ChannelSender csender = new ChannelSender();
-			csender.channelName = !destination.equals(this.nick) ? destination : parser.getNick();
+			csender.channelName = !destination.equals(getNick()) ? destination : parser.getNick();
 			csender.senderName = parser.getNick();
 			this.LASTUSEDCHANNEL = csender.channelName;
 			try
@@ -437,7 +437,7 @@ public class IRCBot
 				temp = temp.startsWith(" ") ? temp.replaceFirst(" ", "") : temp;
 				String[] a = temp.split(" ").length == 1 && temp.split(" ")[0].equals("") ? new String[] {} :  temp.split(" ");
 				cmd = cmd.toLowerCase();
-				IRCBot.log("\"" + messageIRC + "\"", IRCLog.DEBUG);
+				IRCBot.log("\"" + messageIRC + "\"", Log.DEBUG);
 				
 				if (! PermissionsManager.getUserHasPermission(csender, CommandRegistry.getCommand((cmd)).getPermissionLevel()))
 				{
@@ -452,7 +452,7 @@ public class IRCBot
 			}
 			catch (Exception e) //Try catch random crashes
 			{
-				IRCBot.log("WARNING: ERROR FOUND. REBOOTING AND TRYING TO REPORT BACK", IRCLog.SEVERE);
+				IRCBot.log("WARNING: ERROR FOUND. REBOOTING AND TRYING TO REPORT BACK", Log.SEVERE);
 				IRCBot.getInstance().sendToIRC("PRIVMSG " + this.LASTUSEDCHANNEL + " :ERROR: Crash detected while processing command!! Log saved to CRASH.txt");
 				DateFormat dateFormat = new SimpleDateFormat("HH:mma (dd/MM/yy)");
 				Date date = new Date();
@@ -475,11 +475,11 @@ public class IRCBot
 				e.printStackTrace();
 				IRCLog.forceSaveLog();
 			}
-			boolean flag = false;
+			//boolean flag = false;
 		}
 		else
 		{
-			if (line.endsWith("+i") && line.contains("MODE") && line.contains(this.nick))
+			if (line.endsWith("+i") && line.contains("MODE") && line.contains(getNick()))
 			{
 				this.connected = true;
 				this.onConnect();
@@ -490,9 +490,9 @@ public class IRCBot
 	}
 
 	/**Log line with valid level*/
-	public static void log(String line, IRCLog.LogTypes level)
+	public static void log(String line, Log level)
 	{
-		System.out.println("[" + level.toString() + "] " + line);
+		System.out.println("[" + level + "] " + line);
 	}
 	
 	/**Returns the nickname of the bot.*/
@@ -512,5 +512,11 @@ public class IRCBot
 				IRCBot.getInstance().sendToIRC("PRIVMSG " + s + " :" + s1);
 			}
 		}
+	}
+	
+	/***/
+	public static Map<String, Object> getGlobalVars()
+	{
+		return IRCBot.getInstance().management.BOT_CRESIDENTIALS;
 	}
 }

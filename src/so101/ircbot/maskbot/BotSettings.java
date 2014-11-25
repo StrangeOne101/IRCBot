@@ -13,7 +13,7 @@ public class BotSettings
 	public final String nicknameDefault = "__INSERT_NICK_HERE__";
 	public final String userDefault = "__INSERT_USER_HERE__";
 	public final String serverDefault = "irc.esper.net";
-	public final String portDefault = "6667";
+	public final int portDefault = 6667;
 	
 	public boolean setGolbalBotVariable(String variable, Object object)
 	{
