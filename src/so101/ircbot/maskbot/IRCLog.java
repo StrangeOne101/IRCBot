@@ -22,6 +22,15 @@ public class IRCLog
 	
 	private static String currentLogFile;
 	
+	public static LogTypes INFO;
+	public static LogTypes LOG;
+	public static LogTypes WARNING;
+	public static LogTypes SEVERE;
+	public static LogTypes DEBUG;
+	
+	public enum LogTypes
+	{}
+	
 	public IRCLog()
 	{
 		INSTANCE = this;
@@ -87,7 +96,7 @@ public class IRCLog
 			for (String s : IRCBot.getInstance().threadedLogs)
 			{
 				output.append(s);
-				output.append("\n");
+				output.append(System.lineSeparator());
 			}
 			output.close();
 			IRCBot.getInstance().threadedLogs.clear();

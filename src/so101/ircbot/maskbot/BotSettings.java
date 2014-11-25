@@ -36,17 +36,19 @@ public class BotSettings
 	
 	public boolean isCresidentialsValid()
 	{
-		if (BOT_CRESIDENTIALS.containsKey("NICK") && BOT_CRESIDENTIALS.containsKey("USER"))
+		if (!BOT_CRESIDENTIALS.containsKey("NICK") || !BOT_CRESIDENTIALS.containsKey("USER"))
 		{
-			if ((!BOT_CRESIDENTIALS.get("NICK").equals("") && !BOT_CRESIDENTIALS.get("NICK").equals(this.nicknameDefault)))
-			{
-				if ((!BOT_CRESIDENTIALS.get("USER").equals("") && !BOT_CRESIDENTIALS.get("USER").equals(this.userDefault)))
-				{
-					return true;
-				}
-			}
+			return false;
 		}
-		return false;
+		if (BOT_CRESIDENTIALS.get("NICK").equals("") || BOT_CRESIDENTIALS.get("NICK").equals(nicknameDefault))
+		{
+			return false;
+		}
+		if (BOT_CRESIDENTIALS.get("USER").equals("") || BOT_CRESIDENTIALS.get("USER").equals(userDefault))
+		{
+			return false;
+		}
+		return true;
 	}
 	
 	public JsonObject buildRequiredVars()

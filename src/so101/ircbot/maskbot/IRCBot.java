@@ -53,9 +53,6 @@ public class IRCBot
 	private boolean shutdown = false;
 	private boolean connected = false;
 	
-	public static Level DEBUG = new Level("DEBUG", -1) {private static final long serialVersionUID = 1L;};
-	private Level LOG = new Level("LOG", -2) {private static final long serialVersionUID = 36L;};
-	
 	public String nextReturnFromServer;
 	
 	public List<String> mutedChannels = new ArrayList<String>();
@@ -108,35 +105,35 @@ public class IRCBot
 		this.instance = this;
 		this.management = new BotSettings();
 		new IRCLog();
-		IRCBot.log("Loading data from config", Level.INFO);
+		IRCBot.log("Loading data from config", IRCLog.INFO);
 		ConfigSettings.loadData();
 		
 		if (!this.enabled)
 		{
 			return;
 		}
-		IRCBot.log("Data loaded.", Level.INFO);
-		IRCBot.log("Starting IRC Bot MaskBot", Level.INFO);
+		IRCBot.log("Data loaded.", IRCLog.INFO);
+		IRCBot.log("Starting IRC Bot MaskBot", IRCLog.INFO);
 		this.connect();
-		IRCBot.log("Starting local thread", Level.INFO);
-		IRCBot.log("Just kidding, local thread removed for testing", DEBUG);
+		IRCBot.log("Starting local thread", IRCLog.INFO);
+		IRCBot.log("Just kidding, local thread removed for testing", IRCLog.DEBUG);
 		//this.localThread = new Thread(this);
 		//this.localThread.setDaemon(true);
 		//this.localThread.start();
 		
-		IRCBot.log("Giving espernet cresidentials", Level.INFO);
+		IRCBot.log("Giving espernet cresidentials", IRCLog.INFO);
 		//sendToIRC("PASS " + password);
 		sendToIRC("NICK " + nick);
 		sendToIRC("USER " + username + " 0 * : Strange's Mask Bot");
 		
-		IRCBot.log("Initing Map Game Data", Level.INFO);
+		IRCBot.log("Initing Map Game Data", IRCLog.INFO);
 		new MapGame();
 		
-		IRCBot.log("Loading Dictionary Data", Level.INFO);
+		IRCBot.log("Loading Dictionary Data", IRCLog.INFO);
 		DictionaryManager.loadData();
-		IRCBot.log("Dictionary Data Loaded.", Level.INFO);
+		IRCBot.log("Dictionary Data Loaded.", IRCLog.INFO);
 		
-		IRCBot.log("Registering Commands", Level.INFO);
+		IRCBot.log("Registering Commands", IRCLog.INFO);
 		//CommandRegistry.registerCommand(new CommandJoin());
 		CommandRegistry.registerCommand(new CommandQuit());
 		CommandRegistry.registerCommand(new CommandReply("peeka", "Boo!"));
@@ -172,11 +169,11 @@ public class IRCBot
 		CommandRegistry.registerCommandHandler(new MapGameHandler());
 		CommandRegistry.registerCommandHandler(new ChatHandler());
 		
-		IRCBot.log("Grabbing Pokedex Data", Level.INFO);
+		IRCBot.log("Grabbing Pokedex Data", IRCLog.INFO);
 		Pokedex.fetchData(null);
-		IRCBot.log("Data mapped.", Level.INFO);
+		IRCBot.log("Data mapped.", IRCLog.INFO);
 		
-		IRCBot.log("Attempting to get info from server...", Level.INFO);
+		IRCBot.log("Attempting to get info from server...", IRCLog.INFO);
 		this.run();
 
 	}
@@ -197,7 +194,7 @@ public class IRCBot
 		
 		for (String s : this.channels)
 		{
-			IRCBot.log("Joining " + s, Level.INFO);
+			IRCBot.log("Joining " + s, IRCLog.INFO);
 			this.sendToIRC("JOIN " + s);
 		}
 		IRCLog.forceSaveLog();
@@ -207,10 +204,10 @@ public class IRCBot
 	
 	public void onDisconnect()
 	{
-		IRCBot.log("Saving Data", Level.INFO);
+		IRCBot.log("Saving Data", IRCLog.INFO);
 		ConfigSettings.saveData();
 		DictionaryManager.saveData();
-		IRCBot.log("Data Saved.", Level.INFO);
+		IRCBot.log("Data Saved.", IRCLog.INFO);
 		
 	}
 
@@ -219,14 +216,14 @@ public class IRCBot
 	{
 		try
 		{
-			IRCBot.log("Connecting to espernet", Level.INFO);
+			IRCBot.log("Connecting to espernet", IRCLog.INFO);
 			chatSocket = new Socket(host, port);
 			fromServer = new BufferedReader(new InputStreamReader(chatSocket.getInputStream()));
             toServer = new PrintWriter(new OutputStreamWriter(chatSocket.getOutputStream()));
 		}
 		catch(IOException e)
 		{
-			IRCBot.log("Connection refused to: " + host + ":" + port, Level.SEVERE);
+			IRCBot.log("Connection refused to: " + host + ":" + port, IRCLog.SEVERE);
 		}
 	}
 	
@@ -249,13 +246,13 @@ public class IRCBot
 	{
 		IRCBot.toServer.print(line + "\r\n");
 		IRCBot.toServer.flush();
-		IRCBot.log("Bot --> Server: " + line, LOG);
+		IRCBot.log("Bot --> Server: " + line, IRCLog.LOG);
 	}
 
 	/**Close current connections*/
 	public void closeConnections()
 	{
-		IRCBot.log("Closing connections, exiting.", Level.INFO);
+		IRCBot.log("Closing connections, exiting.", IRCLog.INFO);
 		this.sendToIRC("EXIT :QUIT Bot closed.");
 		
 		try
@@ -266,7 +263,7 @@ public class IRCBot
 		}
 		catch(IOException e)
 		{
-			IRCBot.log("Error occured while closing connections: " + e.toString(), Level.SEVERE);
+			IRCBot.log("Error occured while closing connections: " + e.toString(), IRCLog.SEVERE);
 		}
 	
 		chatSocket = null;
@@ -274,7 +271,10 @@ public class IRCBot
 		toServer = null;
 		connected = false;
 		shutdown = true;
-		IRCBot.log("IRC Connections quit.", Level.INFO);
+		IRCBot.log("IRC Connections quit.", IRCLog.INFO);
+		IRCBot.log("Quickly saving data...", IRCLog.INFO);
+		ConfigSettings.saveData();
+		IRCBot.log("Data saved. Bot closed.", IRCLog.INFO);
 		IRCLog.INSTANCE.shutdownLogger();
 	}
 
@@ -285,17 +285,21 @@ public class IRCBot
 			if (!shutdown)
 			{
 				String line = fromServer.readLine();
+				String log = System.console().readLine();
+				if (log != null)
+				{
+					this.threadedLogs.add(log);
+				}
 				if (line != null)
 				{
 					processLineFromServer(line);
-					this.threadedLogs.add(line);
 				}
 				else
 				{
 					// a null line indicates that our server closed the connection
-					IRCBot.log("READ a null line", Level.WARNING);
-					IRCBot.log("That means server has closed the connection", Level.WARNING);
-					IRCBot.log("Or something wrong happened in the network", Level.WARNING);
+					IRCBot.log("READ a null line", IRCLog.WARNING);
+					IRCBot.log("That means server has closed the connection", IRCLog.WARNING);
+					IRCBot.log("Or something wrong happened in the network", IRCLog.WARNING);
 					closeConnections();
 						
 					try
@@ -314,7 +318,7 @@ public class IRCBot
 						@Override
 						public void run() 
 						{
-							
+							IRCBot.log("Restarting! :D", IRCLog.INFO);
 						}});
 				}
 			}
@@ -338,7 +342,7 @@ public class IRCBot
 		}
 		if (connected)
 		{
-			IRCBot.log("System Shutting Down", Level.INFO);
+			IRCBot.log("System Shutting Down", IRCLog.INFO);
 			this.closeConnections();
 		}
 		return;		
@@ -346,7 +350,7 @@ public class IRCBot
 
 	public void processLineFromServer(String line)
 	{
-		IRCBot.log("Server --> Bot: " + line, LOG);
+		IRCBot.log("Server --> Bot: " + line, IRCLog.LOG);
 		
 		IRCParser parser = new IRCParser(line);
 		String command = parser.getCommand();
@@ -406,7 +410,7 @@ public class IRCBot
 			else if (destination.startsWith(this.nick))
 			{
 				//If user is in PRIVMSG, then prefixes arent required
-				//IRCBot.log("TEST WORKED", DEBUG);
+				//IRCBot.log("TEST WORKED", IRCLog.DEBUG);
 				gotPrefix = true;
 			}
 			ChannelSender csender = new ChannelSender();
@@ -433,7 +437,7 @@ public class IRCBot
 				temp = temp.startsWith(" ") ? temp.replaceFirst(" ", "") : temp;
 				String[] a = temp.split(" ").length == 1 && temp.split(" ")[0].equals("") ? new String[] {} :  temp.split(" ");
 				cmd = cmd.toLowerCase();
-				IRCBot.log("\"" + messageIRC + "\"", DEBUG);
+				IRCBot.log("\"" + messageIRC + "\"", IRCLog.DEBUG);
 				
 				if (! PermissionsManager.getUserHasPermission(csender, CommandRegistry.getCommand((cmd)).getPermissionLevel()))
 				{
@@ -448,7 +452,7 @@ public class IRCBot
 			}
 			catch (Exception e) //Try catch random crashes
 			{
-				IRCBot.log("WARNING: ERROR FOUND. REBOOTING AND TRYING TO REPORT BACK", Level.SEVERE);
+				IRCBot.log("WARNING: ERROR FOUND. REBOOTING AND TRYING TO REPORT BACK", IRCLog.SEVERE);
 				IRCBot.getInstance().sendToIRC("PRIVMSG " + this.LASTUSEDCHANNEL + " :ERROR: Crash detected while processing command!! Log saved to CRASH.txt");
 				DateFormat dateFormat = new SimpleDateFormat("HH:mma (dd/MM/yy)");
 				Date date = new Date();
@@ -486,7 +490,7 @@ public class IRCBot
 	}
 
 	/**Log line with valid level*/
-	public static void log(String line, Level level)
+	public static void log(String line, IRCLog.LogTypes level)
 	{
 		System.out.println("[" + level.toString() + "] " + line);
 	}

@@ -13,21 +13,20 @@ import java.util.logging.Level;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
+import javax.json.JsonValue.ValueType;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonGeneratorFactory;
 
 import so101.ircbot.maskbot.games.MapGame;
 import so101.ircbot.maskbot.games.Player;
 
 public class ConfigSettings 
 {
-	protected static final String PATH = "config.yml";
+	protected static final String PATH = "config.cfg";
 	protected static final String PLAYERSAVES = "players.yml";
 	
 	public ConfigSettings() 
@@ -45,7 +44,7 @@ public class ConfigSettings
 				file.createNewFile();
 			} catch (IOException e) 
 			{
-				IRCBot.log("Something went wrong: " + e.getMessage(), Level.SEVERE);
+				IRCBot.log("Something went wrong: " + e.getMessage(), IRCLog.SEVERE);
 			}
 		}		
 		
@@ -86,7 +85,7 @@ public class ConfigSettings
 			}
 			else
 			{
-				IRCBot.log("Tried to load global variable of unknown type!", Level.WARNING);
+				IRCBot.log("Tried to save global variable of unknown type! (Var \"" + s9 + "\" with type " + IRCBot.getInstance().management.BOT_CRESIDENTIALS.get(s9).getClass() + ")", IRCLog.WARNING);
 			}
 			
 		}
@@ -135,7 +134,7 @@ public class ConfigSettings
 		} 
 		catch (IOException e) 
 		{
-			IRCBot.log("Something went wrong while writing to save file! " + e.getMessage(), Level.SEVERE);
+			IRCBot.log("Something went wrong while writing to save file! " + e.getMessage(), IRCLog.SEVERE);
 			e.printStackTrace();
 		}
 	}
@@ -158,6 +157,9 @@ public class ConfigSettings
 				JsonObject jObjectMGPlayers = json.getJsonObject("MapGamePlayers");
 				JsonObject jObjectGlobalVars = json.getJsonObject("GlobalVars");
 				reader.close();
+				
+				//Debug
+				IRCBot.log("Config file: " + json.toString(), IRCLog.INFO);
 				
 				if (jArrayChannels != null)
 				{
@@ -205,7 +207,28 @@ public class ConfigSettings
 				{
 					for (String l : jObjectGlobalVars.keySet())
 					{
-						IRCBot.getInstance().management.setGolbalBotVariable(l, jObjectGlobalVars.get(l));
+						ValueType type = jObjectGlobalVars.get(l).getValueType();
+						if (type.equals(ValueType.STRING))
+						{
+							IRCBot.getInstance().management.setGolbalBotVariable(l, jObjectGlobalVars.getString(l));
+						}
+						else if (type.equals(ValueType.NUMBER))
+						{
+							IRCBot.getInstance().management.setGolbalBotVariable(l, jObjectGlobalVars.getInt(l));
+						}
+						else if (type.equals(ValueType.FALSE) || type.equals(ValueType.TRUE))
+						{
+							IRCBot.getInstance().management.setGolbalBotVariable(l, jObjectGlobalVars.getBoolean(l));
+						}
+						else if (type.equals(ValueType.NULL))
+						{
+							IRCBot.getInstance().management.setGolbalBotVariable(l, null);
+						}
+						else
+						{
+							IRCBot.log("Tried to save global var of unknown type! (Var " + l + " with type " +  jObjectGlobalVars.get(l).getClass(), IRCLog.WARNING);
+						}
+						
 					}
 					
 					//If username and nickname aren't found
@@ -216,6 +239,8 @@ public class ConfigSettings
 				}
 				else
 				{
+					//Debug
+					IRCBot.log("Global vars not found.", IRCLog.INFO);
 					lackOfInfoShutdown();
 				}
 
@@ -234,6 +259,8 @@ public class ConfigSettings
 		}
 		else
 		{
+			//Debug
+			IRCBot.log("Didn't find config file.", IRCLog.INFO);
 			lackOfInfoShutdown();
 		}
 	}
@@ -241,10 +268,10 @@ public class ConfigSettings
 	private static void lackOfInfoShutdown()
 	{
 		File file = new File("config.cfg");
-		IRCBot.log("Cresidentials required for bot not found!", Level.SEVERE);
-		IRCBot.log("Bot will not attempt to connect to server and will shutdown shortly!", Level.SEVERE);
-		IRCBot.log("Config file will be regenerated with required fields. Password field is optional and is not required.", Level.INFO);
-		IRCBot.log("Shutting down bot...", Level.INFO);
+		IRCBot.log("Cresidentials required for bot not found!", IRCLog.SEVERE);
+		IRCBot.log("Bot will not attempt to connect to server and will shutdown shortly!", IRCLog.SEVERE);
+		IRCBot.log("Config file will be regenerated with required fields. Password field is optional and is not required.", IRCLog.INFO);
+		IRCBot.log("Shutting down bot...", IRCLog.INFO);
 		
 		FileWriter writer;
 		try 
