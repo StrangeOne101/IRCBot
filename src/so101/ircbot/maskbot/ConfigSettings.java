@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -44,7 +43,7 @@ public class ConfigSettings
 				file.createNewFile();
 			} catch (IOException e) 
 			{
-				IRCBot.log("Something went wrong: " + e.getMessage(), IRCLog.SEVERE);
+				IRCBot.log("Something went wrong: " + e.getMessage(), Log.SEVERE);
 			}
 		}		
 		
@@ -85,7 +84,7 @@ public class ConfigSettings
 			}
 			else
 			{
-				IRCBot.log("Tried to save global variable of unknown type! (Var \"" + s9 + "\" with type " + IRCBot.getInstance().management.BOT_CRESIDENTIALS.get(s9).getClass() + ")", IRCLog.WARNING);
+				IRCBot.log("Tried to save global variable of unknown type! (Var \"" + s9 + "\" with type " + IRCBot.getInstance().management.BOT_CRESIDENTIALS.get(s9).getClass() + ")", Log.WARNING);
 			}
 			
 		}
@@ -134,7 +133,7 @@ public class ConfigSettings
 		} 
 		catch (IOException e) 
 		{
-			IRCBot.log("Something went wrong while writing to save file! " + e.getMessage(), IRCLog.SEVERE);
+			IRCBot.log("Something went wrong while writing to save file! " + e.getMessage(), Log.SEVERE);
 			e.printStackTrace();
 		}
 	}
@@ -159,7 +158,7 @@ public class ConfigSettings
 				reader.close();
 				
 				//Debug
-				IRCBot.log("Config file: " + json.toString(), IRCLog.INFO);
+				IRCBot.log("Config file: " + json.toString(), Log.INFO);
 				
 				if (jArrayChannels != null)
 				{
@@ -226,7 +225,7 @@ public class ConfigSettings
 						}
 						else
 						{
-							IRCBot.log("Tried to save global var of unknown type! (Var " + l + " with type " +  jObjectGlobalVars.get(l).getClass(), IRCLog.WARNING);
+							IRCBot.log("Tried to save global var of unknown type! (Var " + l + " with type " +  jObjectGlobalVars.get(l).getClass(), Log.WARNING);
 						}
 						
 					}
@@ -240,7 +239,7 @@ public class ConfigSettings
 				else
 				{
 					//Debug
-					IRCBot.log("Global vars not found.", IRCLog.INFO);
+					IRCBot.log("Global vars not found.", Log.INFO);
 					lackOfInfoShutdown();
 				}
 
@@ -260,7 +259,7 @@ public class ConfigSettings
 		else
 		{
 			//Debug
-			IRCBot.log("Didn't find config file.", IRCLog.INFO);
+			IRCBot.log("Didn't find config file.", Log.INFO);
 			lackOfInfoShutdown();
 		}
 	}
@@ -268,10 +267,10 @@ public class ConfigSettings
 	private static void lackOfInfoShutdown()
 	{
 		File file = new File("config.cfg");
-		IRCBot.log("Cresidentials required for bot not found!", IRCLog.SEVERE);
-		IRCBot.log("Bot will not attempt to connect to server and will shutdown shortly!", IRCLog.SEVERE);
-		IRCBot.log("Config file will be regenerated with required fields. Password field is optional and is not required.", IRCLog.INFO);
-		IRCBot.log("Shutting down bot...", IRCLog.INFO);
+		IRCBot.log("Cresidentials required for bot not found!", Log.SEVERE);
+		IRCBot.log("Bot will not attempt to connect to server and will shutdown shortly!", Log.SEVERE);
+		IRCBot.log("Config file will be regenerated with required fields. Password field is optional and is not required.", Log.INFO);
+		IRCBot.log("Shutting down bot...", Log.INFO);
 		
 		FileWriter writer;
 		try 
