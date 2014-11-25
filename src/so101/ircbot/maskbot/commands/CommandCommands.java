@@ -45,7 +45,7 @@ public class CommandCommands implements IBotCommand
 						{
 							if (args.length < 3)
 							{
-								sender.sendToChannel(sender.senderName + ": To add chat command, use \"" + IRCBot.getInstance().nick + " commands chat add <command>\"");
+								sender.sendToChannel(sender.senderName + ": To add chat command, use \"" + IRCBot.getNick() + " commands chat add <command>\"");
 								sender.sendToChannel("Command arguments are -e (Equals), -s (StartsWith), -n (EndsWith) and -c (Contains). Use -r to specify reply. Must be present or the chat command won't work.");
 							}
 							else
@@ -78,7 +78,7 @@ public class CommandCommands implements IBotCommand
 							}
 							else
 							{
-								sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + " commands chat list [page]\"");
+								sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands chat list [page]\"");
 								return true;
 							}
 						}
@@ -90,17 +90,17 @@ public class CommandCommands implements IBotCommand
 					}
 					else
 					{
-						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + " commands chat <add/remove/edit/list>\"");
+						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands chat <add/remove/edit/list>\"");
 					}
 				}
 				else
 				{
-					sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + " commands chat <add/remove/edit/list>\"");
+					sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands chat <add/remove/edit/list>\"");
 				}
 			}
 			else
 			{
-				sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + " commands <chat/basic>\". More will be implemented later.");
+				sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands <chat/basic>\". More will be implemented later.");
 			}
 		}
 		return true;

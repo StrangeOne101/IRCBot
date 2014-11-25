@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class CommandRegistry 
 {
@@ -22,18 +21,18 @@ public class CommandRegistry
 		if (!commandList.containsKey(command.getCommandName()))
 		{
 			commandList.put(command.getCommandName(), command);
-			IRCBot.log("Command " + command.getCommandName().toUpperCase() + " registered", Level.INFO);
+			IRCBot.log("Command " + command.getCommandName().toUpperCase() + " registered", Log.INFO);
 			if (!(command.getAliasis() == null || command.getAliasis() == new String[] {}))
 			{
 				for (int i = 0; i < command.getAliasis().length; i++)
 				{
 					commandList.put(command.getAliasis()[i], command);
-					IRCBot.log("Command alias " + command.getAliasis()[i].toUpperCase() + " registered for command " + command.getCommandName().toUpperCase(), Level.INFO);
+					IRCBot.log("Command alias " + command.getAliasis()[i].toUpperCase() + " registered for command " + command.getCommandName().toUpperCase(), Log.INFO);
 				}
 			}
 			return true;
 		}
-		IRCBot.log("Command " + command.getCommandName().toUpperCase() + " already registered!", Level.SEVERE);
+		IRCBot.log("Command " + command.getCommandName().toUpperCase() + " already registered!", Log.SEVERE);
 		return false;
 	}
 	
@@ -43,10 +42,10 @@ public class CommandRegistry
 		if (!commandHandlerList.contains(command))
 		{
 			commandHandlerList.add(command);
-			IRCBot.log("Command handler " + command.getCommandHandlerName().toUpperCase() + " registered", Level.INFO);
+			IRCBot.log("Command handler " + command.getCommandHandlerName().toUpperCase() + " registered", Log.INFO);
 			return true;
 		}
-		IRCBot.log("Command handler " + command.getCommandHandlerName().toUpperCase() + " already registered!", Level.SEVERE);
+		IRCBot.log("Command handler " + command.getCommandHandlerName().toUpperCase() + " already registered!", Log.SEVERE);
 		return false;
 	}
 	

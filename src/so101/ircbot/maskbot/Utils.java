@@ -17,7 +17,7 @@ public class Utils
 	public static String formatCommandPrefix(String message)
 	{
 		String[] tempArgs = message.toLowerCase().split(" ");
-		if (tempArgs[0].startsWith(IRCBot.getInstance().nick.toLowerCase()))
+		if (tempArgs[0].startsWith(IRCBot.getNick().toLowerCase()))
 	   	{
 			message = message.replaceFirst(message.split(" ")[0] + " ", "");
 	   	}
@@ -28,7 +28,7 @@ public class Utils
 	{
 		boolean gotPrefix = false;
 		String[] tempArgs = command.toLowerCase().split(" ");
-		if (tempArgs[0].startsWith(IRCBot.getInstance().nick.toLowerCase()))
+		if (tempArgs[0].startsWith(IRCBot.getNick().toLowerCase()))
 	   	{
 			gotPrefix = true;
 	   	}
@@ -76,7 +76,7 @@ public class Utils
 	/**Replaces all %s, %n and %c for data (Sender name, Nickname of bot, Channel name)*/
 	public static String formatStringForSender(String baseString, ChannelSender chansender)
 	{
-		return baseString.replaceAll("%NICK", IRCBot.getInstance().nick).replaceAll("%s", chansender.senderName).replaceAll("%n", IRCBot.getInstance().nick).replaceAll("%c", chansender.channelName).replaceAll("%bot", IRCBot.getInstance().nick);
+		return baseString.replaceAll("%NICK", IRCBot.getNick()).replaceAll("%s", chansender.senderName).replaceAll("%n", IRCBot.getNick()).replaceAll("%c", chansender.channelName).replaceAll("%bot", IRCBot.getNick());
 	}
 	
 	/**Formats string by splitting array list with spaces, commas and "and"s for proper english*/

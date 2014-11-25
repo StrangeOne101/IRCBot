@@ -20,7 +20,7 @@ public class CommandDictionary implements IBotCommand
 	{
 		if (args.length == 0)
 		{
-			sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + " dict <add/remove/list> [dictionary] [word]\"");
+			sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " dict <add/remove/list> [dictionary] [word]\"");
 			return true;
 		}
 		if (args[0].equals("list"))

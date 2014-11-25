@@ -30,7 +30,8 @@ public class CommandDebug implements IBotCommand
 							return true;
 						}
 						sender.sendToChannel(sender.senderName + ": Attempting forced crash with arrayoutofbounds exception");
-						String crashString = args[999];
+						Integer.parseInt(args[999]);
+						
 					}
 					else
 					{
@@ -54,7 +55,7 @@ public class CommandDebug implements IBotCommand
 			}
 			else
 			{
-				sender.sendToChannel(sender.senderName + ": Usage is \"" + IRCBot.getInstance().nick + " debug [true/false]\"");
+				sender.sendToChannel(sender.senderName + ": Usage is \"" + IRCBot.getNick() + " debug [true/false]\"");
 			}
 		}
 		else

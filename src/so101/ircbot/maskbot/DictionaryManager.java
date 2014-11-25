@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -44,16 +43,16 @@ public class DictionaryManager
 	
 	public static void saveData()
 	{
-		IRCBot.log("Saving Dictionaries...", Level.INFO);
+		IRCBot.log("Saving Dictionaries...", Log.INFO);
 		File file = new File(DICTIONARIES);
 		if (!file.exists())
 		{
 			try {
 				file.createNewFile();
-				IRCBot.log("Dictionary Config not found: creating.", Level.INFO);
+				IRCBot.log("Dictionary Config not found: creating.", Log.INFO);
 			} catch (IOException e) 
 			{
-				IRCBot.log("Something went wrong: " + e.getMessage(), Level.SEVERE);
+				IRCBot.log("Something went wrong: " + e.getMessage(), Log.SEVERE);
 			}
 		}		
 		
@@ -92,15 +91,15 @@ public class DictionaryManager
 		} 
 		catch (IOException e) 
 		{
-			IRCBot.log("Something went wrong while writing to save file! " + e.getMessage(), Level.SEVERE);
+			IRCBot.log("Something went wrong while writing to save file! " + e.getMessage(), Log.SEVERE);
 			e.printStackTrace();
 		}
-		IRCBot.log("Dictionaries Saved.", Level.INFO);
+		IRCBot.log("Dictionaries Saved.", Log.INFO);
 	}
 	
 	public static void loadData()
 	{
-		IRCBot.log("Loading Dictionaries...", Level.INFO);
+		IRCBot.log("Loading Dictionaries...", Log.INFO);
 		File file = new File(DICTIONARIES);
 		if (file.exists())
 		{
@@ -129,9 +128,9 @@ public class DictionaryManager
 				}				
 			} 
 			catch (FileNotFoundException e) {}
-			IRCBot.log("Dictionaries Loaded.", Level.INFO);
+			IRCBot.log("Dictionaries Loaded.", Log.INFO);
 		}
 		else
-			IRCBot.log("Dictionaries not found. Doesn't matter, will continue anyway.", Level.INFO);
+			IRCBot.log("Dictionaries not found. Doesn't matter, will continue anyway.", Log.INFO);
 	}
 }
