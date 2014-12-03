@@ -20,7 +20,7 @@ public class CommandRaw implements IBotCommand {
 	{
 		if (args.length < 1)
 		{
-			sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + " raw <command>\"");
+			sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " raw <command>\"");
 			return true;
 		}
 		if (args[0].equals("debug"))

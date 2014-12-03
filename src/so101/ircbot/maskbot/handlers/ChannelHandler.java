@@ -143,7 +143,7 @@ public class ChannelHandler implements ICommandHandler
 					}
 					else
 					{
-						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + " channels <join/leave/list>\"");
+						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " channels <join/leave/list>\"");
 					}
 					return true;
 				}

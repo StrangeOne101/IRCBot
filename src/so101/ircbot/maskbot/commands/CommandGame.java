@@ -1,6 +1,5 @@
 package so101.ircbot.maskbot.commands;
 
-import so101.ircbot.maskbot.ConfigSettings;
 import so101.ircbot.maskbot.IBotCommand;
 import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
@@ -27,20 +26,20 @@ public class CommandGame implements IBotCommand {
 					Player p = MapGame.instance.playerFiles.get(sender.senderName);
 					if (!p.paused)
 					{
-						sender.sendToChannel(sender.senderName + ": Game paused. Use \"" + IRCBot.getInstance().nick + " game unpause\" to resume");
+						sender.sendToChannel(sender.senderName + ": Game paused. Use \"" + IRCBot.getNick() + " game unpause\" to resume");
 						p.paused = true;
 						return true;
 					}
 					else 
 					{
-						sender.sendToChannel(sender.senderName + ": Game already paused. Use \"" + IRCBot.getInstance().nick + " game unpause\" to resume");
+						sender.sendToChannel(sender.senderName + ": Game already paused. Use \"" + IRCBot.getNick() + " game unpause\" to resume");
 						return true;
 					}
 					
 				}
 				else
 				{
-					sender.sendToChannel(sender.senderName + ":You are not currrently in a game. Use \"" + IRCBot.getInstance().nick + " games play <game>\" to play a game");
+					sender.sendToChannel(sender.senderName + ":You are not currrently in a game. Use \"" + IRCBot.getNick() + " games play <game>\" to play a game");
 					return true;
 				}	
 			}
@@ -58,13 +57,13 @@ public class CommandGame implements IBotCommand {
 					}
 					else
 					{
-						sender.sendToChannel(sender.senderName + ": Game already in action. Use \"" + IRCBot.getInstance().nick + " game pause\" to pause game");
+						sender.sendToChannel(sender.senderName + ": Game already in action. Use \"" + IRCBot.getNick() + " game pause\" to pause game");
 						return true;
 					}
 				}
 				else
 				{
-					sender.sendToChannel(sender.senderName + ": You are not currrently in a game. Use \"" + IRCBot.getInstance().nick + " games play <game>\" to play a game");
+					sender.sendToChannel(sender.senderName + ": You are not currrently in a game. Use \"" + IRCBot.getNick() + " games play <game>\" to play a game");
 					return true;
 				}
 			}
@@ -81,7 +80,7 @@ public class CommandGame implements IBotCommand {
 				}
 				else
 				{
-					sender.sendToChannel(sender.senderName + ": You are not currrently in a game. Use \"" + IRCBot.getInstance().nick + " games play <game>\" to play a game");
+					sender.sendToChannel(sender.senderName + ": You are not currrently in a game. Use \"" + IRCBot.getNick() + " games play <game>\" to play a game");
 					return true;
 				}
 			}

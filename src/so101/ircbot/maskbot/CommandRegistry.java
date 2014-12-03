@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import so101.ircbot.maskbot.handlers.ChatHandler;
+
 public class CommandRegistry 
 {
 	/**List of registered commands*/
@@ -15,6 +17,8 @@ public class CommandRegistry
 	
 	/**List of commands to use in chat. E.g. Input = Maskbot, do you like Pie? Output = Yes :D*/
 	public static List<String> chatCommands = new ArrayList<String>();
+	
+	public static ChatHandler chatHandler = new ChatHandler();
 	
 	public static boolean registerCommand(IBotCommand command)
 	{

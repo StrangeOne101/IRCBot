@@ -24,7 +24,9 @@ public class ChatHandler implements ICommandHandler
 		for (int i = 0; i < CommandRegistry.chatCommands.size(); i++)
 		{
 			String s = CommandRegistry.chatCommands.get(i);
-			s = Utils.formatStringForSender(s, sender).toLowerCase();
+			s = s.replaceAll("\\:", "");
+			s = s.replaceAll(",", "");
+			s = s.replaceAll("(?i)&ACTION", "\u0001ACTION");
 			/** Contains: -c
 			 *  Equals -e
 			 *  StartsWith -s
@@ -50,21 +52,27 @@ public class ChatHandler implements ICommandHandler
 						{
 						case "-c":
 							contains.add(thingToLookFor);
+							break;
 						case "-e":
 							equals.add(thingToLookFor);
+							break;
 						case "-s":
 							startswith.add(thingToLookFor);
+							break;
 						case "-n":
 							endswith.add(thingToLookFor);
+							break;
 						case "-r":
-							reply = thingToLookFor;
+							reply = thingToLookFor + args[args.length - 1];
+							break;
 						case "-o":
-							reply = thingToLookFor;	
+							reply = thingToLookFor + args[args.length - 1];	
+							break;
 						}
 					}
 					if (!args[args.length - 1].equals(s1))
 					{
-						curFormat = s1;
+						curFormat = s1.toLowerCase();
 					}
 					thingToLookFor = "";
 				}
@@ -73,33 +81,45 @@ public class ChatHandler implements ICommandHandler
 					thingToLookFor = thingToLookFor.equals("") ? s1 : thingToLookFor + " " + s1;
 				}
 			}
+			if (IRCBot.getInstance().debugMode)
+			{
+				IRCBot.alertRoots(contains.toString());
+				IRCBot.alertRoots(equals.toString());
+				IRCBot.alertRoots(startswith.toString());
+				IRCBot.alertRoots(endswith.toString());
+			}
 			for (String s2 : contains)
 			{
-				if (!message.toLowerCase().contains(s2))
+				if (!message.toLowerCase().contains(this.formatStringForAll(s2.toLowerCase(), sender)))
 				{
 					flag = false;
 				}
 			}
 			for (String s3 : equals)
 			{
-				if (!message.toLowerCase().equals(s3))
+				if (!message.toLowerCase().equalsIgnoreCase(this.formatStringForAll(s3, sender)))
 				{
 					flag = false;
 				}
 			}
 			for (String s4 : startswith)
 			{
-				if (!message.toLowerCase().startsWith(s4))
+				if (!message.toLowerCase().startsWith(this.formatStringForAll(s4.toLowerCase(), sender)))
 				{
 					flag = false;
 				}
 			}
 			for (String s5 : endswith)
 			{
-				if (!message.toLowerCase().startsWith(s5))
+				if (!message.toLowerCase().endsWith(this.formatStringForAll(s5.toLowerCase(), sender)))
 				{
 					flag = false;
 				}
+			}
+			
+			if (reply.startsWith("~"))
+			{
+				reply.replaceFirst("~", "\u0001ACTION");
 			}
 			
 			if (flag)
@@ -115,5 +135,46 @@ public class ChatHandler implements ICommandHandler
 			
 		}
 		return false;
+	}
+	
+	/**Replaces all needed fields in string. Use string.split(" ") to give array.*/
+	public String formatStringForAll(String[] message, ChannelSender sender)
+	{
+		String[] newS = message;
+		for (int i = 0; i < message.length; i++)
+		{
+			newS[i] = this.replaceVariableForWorld(message[i], "nick", IRCBot.getNick());
+			newS[i] = this.replaceVariableForWorld(message[i], "n", IRCBot.getNick());
+			newS[i] = this.replaceVariableForWorld(message[i], "s", sender.senderName);
+			newS[i] = this.replaceVariableForWorld(message[i], "c", sender.channelName);			
+		}
+		return Utils.formatArrayToString(newS);
+	}
+	
+	/**Replaces all needed fields. ONLY USE FOR SINGLE WORDS!!*/
+	public String formatStringForAll(String word, ChannelSender sender)
+	{
+		word = this.replaceVariableForWorld(word, "nick", IRCBot.getNick());
+		word = this.replaceVariableForWorld(word, "n", IRCBot.getNick());
+		word = this.replaceVariableForWorld(word, "s", sender.senderName);
+		word = this.replaceVariableForWorld(word, "c", sender.channelName);
+		return word;
+	}
+	
+	public String replaceVariableForWorld(String originalWord, String var, String newvar)
+	{
+		String s = originalWord;
+		if (originalWord.toLowerCase().contains("%" + var.toLowerCase()))
+		{
+			if (originalWord.lastIndexOf("%") > originalWord.indexOf("%")) //The word is has 2 % in is, with the var in middle
+			{
+				s = originalWord.replaceAll("(?i)%" + var + "%", newvar);
+			}
+			else
+			{
+				s = originalWord.replaceAll("(?i)%" + var, newvar);
+			}
+		}
+		return s;
 	}
 }

@@ -26,7 +26,7 @@ public class CommandReal implements IBotCommand {
 			String s = Utils.formatArrayToString(args);
 			return CmdAction.runCommand(s, sender);
 		}
-		sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + " real <command>\"");
+		sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " real <command>\"");
 		return false;
 	}
 

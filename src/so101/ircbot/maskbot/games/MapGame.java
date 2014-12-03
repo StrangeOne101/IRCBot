@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import so101.ircbot.maskbot.IRCBot;
-
 public class MapGame 
 {
 	public Map<String, Player> playerFiles = new HashMap<String, Player>();
@@ -260,23 +258,23 @@ public class MapGame
 	
 	public void getNextInput(Player p, String input)
 	{
-		String output = "";
+		//String output = "";
 		switch (p.getNextQID)
 		{
 		case 0:
 			if (isYes(input))
-				output += "You find nothing...\n";
+				p.sendToPlayerChannel("You find nothing...\n");
 		case 1:
 			if (isYes(input))
 			{
 				p.hydration = 100;
-	            output += "You take a dip and rehydrate yourself!\n";
+				p.sendToPlayerChannel("You take a dip and rehydrate yourself!\n");
 			}  
 		case 2:
 			if (isYes(input))
-	            output += "The child drowns anyway...\n";
+				p.sendToPlayerChannel("The child drowns anyway...\n");
 	        else
-	            output += "The child drowns.\n";
+	        	p.sendToPlayerChannel("The child drowns.\n");
 		case 4:
 			if (isYes(input)) 
 			{
@@ -285,12 +283,12 @@ public class MapGame
 	            {
 	                if (new Random().nextInt(4) == 0) 
 	                {
-	                    output += "Oh no! The water was poisoned! Your eyes start to close and you feel your heart start to slow. You are dead.";
+	                	p.sendToPlayerChannel("Oh no! The water was poisoned! Your eyes start to close and you feel your heart start to slow. You are dead.");
 	                    p.health = 0;
 	                }
 	                else 
 	                {
-	                    output += "You feel greatly refreshed.";
+	                	p.sendToPlayerChannel("You feel greatly refreshed.");
 	                    if (p.hydration <= 70)
 	                        p.hydration += 30;
 	                    else
@@ -298,13 +296,13 @@ public class MapGame
 	                }
 	            }
 	            else
-	                output += "You refuse and the woman throws the glass at you. What a bitch!";
+	            	p.sendToPlayerChannel("You refuse and the woman throws the glass at you. What a bitch!");
 			}
 		case 5:
 			if (isYes(input))
 			{
                 p.lumber = true;
-                output += "You take the wood.";
+                p.sendToPlayerChannel("You take the wood.");
 			}
             else
                 p.lumber = false;

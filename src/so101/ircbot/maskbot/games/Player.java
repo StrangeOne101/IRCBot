@@ -36,7 +36,7 @@ public class Player
 	
 	public void sendToPlayerChannel(String line)
 	{
-		if (this.lastChannel == "" || this.lastChannel == IRCBot.getInstance().nick)
+		if (this.lastChannel == "" || this.lastChannel == IRCBot.getNick())
 		{
 			IRCBot.getInstance().sendToIRC("PRIVMSG " + this.playerNick + " :" + line);
 		}

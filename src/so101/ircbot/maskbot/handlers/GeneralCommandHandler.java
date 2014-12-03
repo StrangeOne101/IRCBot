@@ -43,7 +43,7 @@ public class GeneralCommandHandler implements ICommandHandler {
 					}
 					else
 					{
-						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + "\" say <message>");
+						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + "\" say <message>");
 					}
 					return true;
 				}
@@ -61,7 +61,7 @@ public class GeneralCommandHandler implements ICommandHandler {
 					}
 					else
 					{
-						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + "\" msg <user> <message>");
+						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + "\" msg <user> <message>");
 					}
 					return true;
 				}
@@ -79,7 +79,7 @@ public class GeneralCommandHandler implements ICommandHandler {
 					}
 					else
 					{
-						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + "\" self <message>");
+						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + "\" self <message>");
 					}
 					return true;
 				}

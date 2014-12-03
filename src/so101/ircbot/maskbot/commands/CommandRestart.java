@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import so101.ircbot.maskbot.BotRestarter;
 import so101.ircbot.maskbot.IBotCommand;
-import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
 
 public class CommandRestart implements IBotCommand 

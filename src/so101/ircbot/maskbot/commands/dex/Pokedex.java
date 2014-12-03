@@ -9,7 +9,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
 
 public class Pokedex 

@@ -28,15 +28,18 @@ public class DictionaryManager
 	public static void addToDictionary(String word, String dictionary)
 	{
 		String dict = dictionary.toLowerCase();
-		if (!dictionaries.containsKey(dictionary.toLowerCase()) && !aliases.containsKey(dictionary.toLowerCase()))
-		{
-			dictionaries.put(dictionary.toLowerCase(), new ArrayList<String>());
-		}
 		
 		if (aliases.containsKey(dictionary.toLowerCase()))
 		{
 			dict = aliases.get(dictionary.toLowerCase());
 		}
+		//TODO FIx
+		if (!dictionaries.containsKey(dictionary.toLowerCase()) && !aliases.containsKey(dictionary.toLowerCase()))
+		{
+			dictionaries.put(dictionary.toLowerCase(), new ArrayList<String>());
+		}
+		
+		
 		
 		dictionaries.get(dict).add(word);
 	}

@@ -3,8 +3,10 @@ package so101.ircbot.maskbot;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.text.DateFormat;
@@ -35,10 +37,10 @@ public class IRCLog
 			dir.mkdirs();
 			file.createNewFile();
 			currentLogFile = "logs/log_" + dateFormat.format(date) + ".txt";
-			//out = new PrintStream(new FileOutputStream(file, true));
-			//System.setOut(out);
-			thread = new Thread(new ThreadedLogger());
-			thread.start();
+			out = new ConsolePrintStream(new FileOutputStream(file, true), System.out);
+			System.setOut(out);
+			//thread = new Thread(new ThreadedLogger());
+			//thread.start();
 		} 
 		catch (FileNotFoundException e) 
 		{
@@ -56,10 +58,10 @@ public class IRCLog
 		{
 			this.out.close();
 		}
-		IRCLog.forceSaveLog();
+		//IRCLog.forceSaveLog();
 	}
 	
-	public class ThreadedLogger implements Runnable
+	/*public class ThreadedLogger implements Runnable
 	{
 
 		@Override
@@ -100,5 +102,51 @@ public class IRCLog
 		{
 			IRCBot.alertRoots("%s: There was a severe error while saving to the log file that is unknown (IOException).");
 		}
-	}
+	}*/
+	
+	public class ConsolePrintStream extends PrintStream 
+	{
+        private final PrintStream second;
+
+        public ConsolePrintStream(OutputStream main, PrintStream second) {
+            super(main);
+            this.second = second;
+        }
+
+        /**
+         * Closes the main stream. 
+         * The second stream is just flushed but <b>not</b> closed.
+         * @see java.io.PrintStream#close()
+         */
+        @Override
+        public void close() 
+        {
+            super.close();
+            second.close();
+        }
+
+        @Override
+        public void flush() {
+            super.flush();
+            second.flush();
+        }
+
+        @Override
+        public void write(byte[] buf, int off, int len) {
+            super.write(buf, off, len);
+            second.write(buf, off, len);
+        }
+
+        @Override
+        public void write(int b) {
+            super.write(b);
+            second.write(b);
+        }
+
+        @Override
+        public void write(byte[] b) throws IOException {
+            super.write(b);
+            second.write(b);
+        }
+    }
 }

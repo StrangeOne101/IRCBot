@@ -34,7 +34,7 @@ public class PermHander implements ICommandHandler
 							{
 								if (Utils.isInteger(args[2]))
 								{
-									if (Integer.parseInt(args[2]) > PermissionsManager.permissionTable.get(sender.senderName))
+									if (Integer.parseInt(args[2]) > PermissionsManager.permissionTable.get(sender.senderName.toLowerCase()))
 									{
 										sender.sendToChannel(sender.senderName + ": You can not set a permission level to something higher than your own");
 										return true;
@@ -65,7 +65,7 @@ public class PermHander implements ICommandHandler
 						}
 						else
 						{
-							sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getInstance().nick + " perms <user> [perm]\"");
+							sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " perms <user> [perm]\"");
 						}
 					}
 					else

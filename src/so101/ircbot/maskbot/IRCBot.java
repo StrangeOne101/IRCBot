@@ -38,6 +38,12 @@ public class IRCBot
 	
 	protected BotSettings management;
 	
+	protected IRCGui gui = null;
+	
+	protected int ticksSinceLastSend = 0;
+	protected int messagesInLastMin = 0;
+	protected int tickManager = 0;
+	
 	protected List<String> threadedLogs = new ArrayList<String>();
 	
 	private int port = 6667;
@@ -111,6 +117,7 @@ public class IRCBot
 		{
 			return;
 		}
+		//this.gui = new IRCGui();
 		IRCBot.log("Data loaded.", Log.INFO);
 		IRCBot.log("Starting IRC Bot MaskBot", Log.INFO);
 		this.connect();
@@ -123,7 +130,7 @@ public class IRCBot
 		IRCBot.log("Giving espernet cresidentials", Log.INFO);
 		//sendToIRC("PASS " + password);
 		sendToIRC("NICK " + getNick());
-		sendToIRC("USER " + this.management.BOT_CRESIDENTIALS.get("USER") + " 0 * : Strange's Bot Factory");
+		sendToIRC("USER " + this.management.BOT_CRESIDENTIALS.get("USER") + " 0 * : " + getNick() + ", Made in Strange's Bot Factory");
 		
 		IRCBot.log("Initing Map Game Data", Log.INFO);
 		new MapGame();
@@ -140,9 +147,15 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandReply("penis", "attack"));
 		CommandRegistry.registerCommand(new CommandReply("pi", "3.1415927"));
 		CommandRegistry.registerCommand(new CommandReply("beep", "Boop!"));
-		CommandRegistry.registerCommand(new CommandReply("MaskBot play", "If you're looking to play a game, try \"MaskBot games play <game>\""));
+		CommandRegistry.registerCommand(new CommandReply("MaskBot play", "%s: If you're looking to play a game, try \"MaskBot games play <game>\""));
 		CommandRegistry.registerCommand(new CommandReply(".bing", "You're trying to use bing... You know that?"));
 		CommandRegistry.registerCommand(new CommandReply(".squid", "So you like squids, eh? http://i.imgur.com/daYZgQL.jpg"));
+		CommandRegistry.registerCommand(new CommandMeReply("kill"));
+		CommandRegistry.registerCommand(new CommandMeReply("stab"));
+		CommandRegistry.registerCommand(new CommandMeReply("whack"));
+		CommandRegistry.registerCommand(new CommandMeReply("slap"));
+		CommandRegistry.registerCommand(new CommandMeReply("kill"));
+		CommandRegistry.registerCommand(new CommandMeReply("beat"));
 		CommandRegistry.registerCommand(new Command5050());
 		CommandRegistry.registerCommand(new CommandSay());
 		//CommandRegistry.registerCommand(new CommandLeave());
@@ -159,6 +172,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandReal());
 		CommandRegistry.registerCommand(new CommandDictionary());
 		CommandRegistry.registerCommand(new CommandCommands());
+		CommandRegistry.registerCommand(new CommandAuthor());
 		
 		CommandRegistry.registerCommandHandler(new CookieHandler());
 		CommandRegistry.registerCommandHandler(new MuteHandler());
@@ -166,7 +180,7 @@ public class IRCBot
 		CommandRegistry.registerCommandHandler(new GeneralCommandHandler());
 		CommandRegistry.registerCommandHandler(new PermHander());
 		CommandRegistry.registerCommandHandler(new MapGameHandler());
-		CommandRegistry.registerCommandHandler(new ChatHandler());
+		//CommandRegistry.registerCommandHandler(new ChatHandler());
 		
 		IRCBot.log("Grabbing Pokedex Data", Log.INFO);
 		Pokedex.fetchData(null);
@@ -196,7 +210,7 @@ public class IRCBot
 			IRCBot.log("Joining " + s, Log.INFO);
 			this.sendToIRC("JOIN " + s);
 		}
-		IRCLog.forceSaveLog();
+		//IRCLog.forceSaveLog();
 		//ConfigSettings.testYaml();
 		
 	}
@@ -243,9 +257,19 @@ public class IRCBot
 	/**Send to espernet*/
 	public void sendToIRC(String line)
 	{
+		if (this.ticksSinceLastSend < 2)
+		{
+			try {
+				Thread.sleep(100L);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		IRCBot.toServer.print(line + "\r\n");
 		IRCBot.toServer.flush();
 		IRCBot.log("Bot --> Server: " + line, Log.LOG);
+		this.ticksSinceLastSend = 0;
 	}
 
 	/**Close current connections*/
@@ -292,6 +316,13 @@ public class IRCBot
 				if (line != null)
 				{
 					processLineFromServer(line);
+					this.ticksSinceLastSend ++;
+					if (this.tickManager == 9)
+					{
+						this.tickManager = 0;
+					}
+					else
+						tickManager ++;
 				}
 				else
 				{
@@ -344,6 +375,11 @@ public class IRCBot
 			IRCBot.log("System Shutting Down", Log.INFO);
 			this.closeConnections();
 		}
+		if (this.gui != null)
+		{
+			this.gui.updateConsole();
+		}
+		
 		return;		
 	}
 
@@ -449,6 +485,11 @@ public class IRCBot
 					return;
 				}
 			}
+			else if (CommandRegistry.chatHandler.onCommand(Utils.formatStringForSender(messageIRC, csender), csender))
+			{
+				return;
+			}
+			
 			}
 			catch (Exception e) //Try catch random crashes
 			{
@@ -473,7 +514,7 @@ public class IRCBot
 					writer.close();
 				} catch (IOException e1) {}
 				e.printStackTrace();
-				IRCLog.forceSaveLog();
+				//IRCLog.forceSaveLog();
 			}
 			//boolean flag = false;
 		}
