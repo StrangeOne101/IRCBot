@@ -21,10 +21,14 @@ public class CookieHandler implements ICommandHandler
 	@Override
 	public boolean onCommand(String message, ChannelSender sender) 
 	{
-		if (!(message.toLowerCase().contains(IRCBot.getNick().toLowerCase())) && !IRCBot.getInstance().mutedChannels.contains(sender.channelName) && (message.toLowerCase().contains("cookie") || message.toLowerCase().contains("cookies")))
+		if (!(message.toLowerCase().contains(IRCBot.getNick().toLowerCase())) && (message.toLowerCase().contains("cookie") || message.toLowerCase().contains("cookies")))
 		{
-			sender.sendToChannel("Cookies! +1!");
-			this.storedCookies.put(sender.senderName, this.storedCookies.get(sender.senderName));
+			//sender.sendToChannel("Cookies! +1!");
+			if (!this.storedCookies.containsKey(sender.senderName.toLowerCase()))
+			{
+				this.storedCookies.put(sender.senderName.toLowerCase(), 0);
+			}
+			this.storedCookies.put(sender.senderName.toLowerCase(), this.storedCookies.get(sender.senderName.toLowerCase()) + 1);
 		}
 		
 		return false;

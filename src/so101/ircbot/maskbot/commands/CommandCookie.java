@@ -19,20 +19,21 @@ public class CommandCookie implements IBotCommand {
 		CookieHandler handler = (CookieHandler) CommandRegistry.commandHandlerList.get(0);
 		if (args.length > 0)
 		{
-			if (handler.storedCookies.containsKey(args[0]))
+			if (handler.storedCookies.containsKey(args[0].toLowerCase()))
 			{
-				sender.sendToChannel(sender.senderName + ": " + handler.storedCookies.get(args[0]) + " cookies");
+				sender.sendToChannel(sender.senderName + ": " + handler.storedCookies.get(args[0].toLowerCase()) + " cookies");
 			}
 			else
 			{
-				sender.sendToChannel(sender.senderName + ": User not found!");
+				sender.sendToChannel(sender.senderName + ": 0 cookies");
 			}
 		}
 		else
 		{
-			if (handler.storedCookies.containsKey(sender.senderName))
+			if (handler.storedCookies.containsKey(sender.senderName.toLowerCase()))
 			{
-				sender.sendToChannel(sender.senderName + ": " + handler.storedCookies.get(sender.senderName) + " cookies");
+				int i = handler.storedCookies.get(sender.senderName.toLowerCase());
+				sender.sendToChannel(sender.senderName + ": " + i + " cookie" + (i != 1 ? "s" : ""));
 			}
 			else
 			{

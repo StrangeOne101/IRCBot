@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import so101.ircbot.maskbot.commands.*;
 import so101.ircbot.maskbot.commands.dex.Pokedex;
@@ -43,6 +44,7 @@ public class IRCBot
 	protected int ticksSinceLastSend = 0;
 	protected int messagesInLastMin = 0;
 	protected int tickManager = 0;
+	protected int ticksTillSave = 0;
 	
 	protected List<String> threadedLogs = new ArrayList<String>();
 	
@@ -173,6 +175,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandDictionary());
 		CommandRegistry.registerCommand(new CommandCommands());
 		CommandRegistry.registerCommand(new CommandAuthor());
+		CommandRegistry.registerCommand(new CommandConfig());
 		
 		CommandRegistry.registerCommandHandler(new CookieHandler());
 		CommandRegistry.registerCommandHandler(new MuteHandler());
@@ -303,6 +306,14 @@ public class IRCBot
 
 	public void run() 
 	{
+		ticksTillSave++;
+		if (ticksTillSave == 60 * 10 * 30)
+		{
+			ticksTillSave = 0;
+			IRCBot.log("Saving data from 30 min schedule...", Log.INFO);
+			ConfigSettings.saveData();
+			IRCBot.log("Data saved.", Log.INFO);
+		}
 		try
 		{
 			if (!shutdown)

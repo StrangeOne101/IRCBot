@@ -26,7 +26,7 @@ public class ChatHandler implements ICommandHandler
 			String s = CommandRegistry.chatCommands.get(i);
 			s = s.replaceAll("\\:", "");
 			s = s.replaceAll(",", "");
-			s = s.replaceAll("(?i)&ACTION", "\u0001ACTION");
+			s = s.replaceAll("&ACTION", "\u0001ACTION");
 			/** Contains: -c
 			 *  Equals -e
 			 *  StartsWith -s
@@ -80,6 +80,11 @@ public class ChatHandler implements ICommandHandler
 				{
 					thingToLookFor = thingToLookFor.equals("") ? s1 : thingToLookFor + " " + s1;
 				}
+			}
+			
+			if (reply.startsWith("~"))
+			{
+				reply = reply.replaceFirst("~", "");
 			}
 			if (IRCBot.getInstance().debugMode)
 			{
@@ -154,10 +159,14 @@ public class ChatHandler implements ICommandHandler
 	/**Replaces all needed fields. ONLY USE FOR SINGLE WORDS!!*/
 	public String formatStringForAll(String word, ChannelSender sender)
 	{
-		word = this.replaceVariableForWorld(word, "nick", IRCBot.getNick());
-		word = this.replaceVariableForWorld(word, "n", IRCBot.getNick());
-		word = this.replaceVariableForWorld(word, "s", sender.senderName);
-		word = this.replaceVariableForWorld(word, "c", sender.channelName);
+		word = this.replaceVariableForWorld(word, "%nick", IRCBot.getNick());
+		word = this.replaceVariableForWorld(word, "%n", IRCBot.getNick());
+		word = this.replaceVariableForWorld(word, "%s", sender.senderName);
+		word = this.replaceVariableForWorld(word, "%c", sender.channelName);
+		word = this.replaceVariableForWorld(word, "%NICK", IRCBot.getNick());
+		word = this.replaceVariableForWorld(word, "%N", IRCBot.getNick());
+		word = this.replaceVariableForWorld(word, "%S", sender.senderName);
+		word = this.replaceVariableForWorld(word, "%C", sender.channelName);
 		return word;
 	}
 	
@@ -168,11 +177,11 @@ public class ChatHandler implements ICommandHandler
 		{
 			if (originalWord.lastIndexOf("%") > originalWord.indexOf("%")) //The word is has 2 % in is, with the var in middle
 			{
-				s = originalWord.replaceAll("(?i)%" + var + "%", newvar);
+				s = originalWord.replaceAll("%(?i)" + var + "%", newvar);
 			}
 			else
 			{
-				s = originalWord.replaceAll("(?i)%" + var, newvar);
+				s = originalWord.replaceAll("%(?i)" + var, newvar);
 			}
 		}
 		return s;

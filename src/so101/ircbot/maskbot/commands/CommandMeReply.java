@@ -24,12 +24,27 @@ public class CommandMeReply implements IBotCommand
 	@Override
 	public boolean execute(String[] args, ChannelSender sender) 
 	{
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].toLowerCase().equals("me"))
+			{
+				args[i] = sender.senderName;
+			}
+			else if (args[i].toLowerCase().equals("my"))
+			{
+				args[i] = sender.senderName + "'" + (sender.senderName.endsWith("s") ? "" : "s");
+			}
+			else if (args[i].toLowerCase().equals("yourself"))
+			{
+				args[i] = IRCBot.getNick();
+			}
+		}
 		if (args.length > 0)
 		{
-			
 			String s = Utils.formatArrayToString(args);
 			s = Utils.formatStringForSender(s, sender);
 			s.replaceAll(":", "\\:");
+			s.replaceAll("me ", "\\:");
 			sender.sendToChannel("\u0001ACTION " + command + "s " + s);
 		}
 		else

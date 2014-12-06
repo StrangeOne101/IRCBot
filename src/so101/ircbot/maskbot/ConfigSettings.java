@@ -22,6 +22,7 @@ import javax.json.stream.JsonGenerator;
 
 import so101.ircbot.maskbot.games.MapGame;
 import so101.ircbot.maskbot.games.Player;
+import so101.ircbot.maskbot.handlers.CookieHandler;
 
 public class ConfigSettings 
 {
@@ -66,6 +67,13 @@ public class ConfigSettings
 			permBuilder.add(j.toLowerCase(), PermissionsManager.permissionTable.get(j));
 		}
 		JsonObject perms = permBuilder.build();
+		
+		JsonObjectBuilder cookieBuilder = Json.createObjectBuilder();
+		for (String j : ((CookieHandler)CommandRegistry.commandHandlerList.get(0)).storedCookies.keySet())
+		{
+			cookieBuilder.add(j, ((CookieHandler)CommandRegistry.commandHandlerList.get(0)).storedCookies.get(j));
+		}
+		JsonObject cookies = cookieBuilder.build();
 		
 		JsonObjectBuilder globalVarBuilder = Json.createObjectBuilder();
 		for (String s9 : IRCBot.getInstance().management.BOT_CRESIDENTIALS.keySet())
@@ -112,6 +120,7 @@ public class ConfigSettings
 				.add("Channels", arrays[0])
 				.add("MutedChannels", arrays[1])
 				.add("Permissions", perms)
+				.add("Cookies", cookies)
 				.add("MapGamePlayers", mapGamePlayers)
 				.add("GlobalVars", vars)
 				.build();
@@ -150,6 +159,7 @@ public class ConfigSettings
 				JsonReader jsonReader = Json.createReader(reader);
 				JsonObject json = jsonReader.readObject();
 				JsonArray jArrayChannels = json.getJsonArray("Channels");
+				JsonObject jObjectCookies = json.getJsonObject("Cookies");
 				JsonArray jArrayMutedChannels = json.getJsonArray("MutedChannels");
 				JsonArray jArrayChatCmds = json.getJsonArray("ChatCommands");
 				JsonObject jObjectPerms = json.getJsonObject("Permissions");
@@ -198,6 +208,15 @@ public class ConfigSettings
 						p.time = player.getInt("Time");
 						p.posX = player.getInt("PosX");
 						p.posY = player.getInt("PosY");		
+					}
+					
+				}
+				catch (NullPointerException e) {}
+				
+				try {
+					for (String k1 : jObjectCookies.keySet())
+					{
+						((CookieHandler)CommandRegistry.commandHandlerList.get(0)).storedCookies.put(k1, jObjectCookies.getInt(k1));
 					}
 				}
 				catch (NullPointerException e) {}

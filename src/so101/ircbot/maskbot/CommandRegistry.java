@@ -56,10 +56,22 @@ public class CommandRegistry
 	/**Returns command of the given name, can be alias. Returns null if command not found.*/
 	public static IBotCommand getCommand(String name)
 	{
-		
 		if (commandList.containsKey(name))
 		{
 			return commandList.get(name);
+		}
+		return null;
+	}
+	
+	/**Returns the command handler by the command handler given name. Will return null if name not found in registry.*/
+	public static ICommandHandler getCommandHandler(String name)
+	{
+		for (ICommandHandler i : commandHandlerList)
+		{
+			if (i.getCommandHandlerName().equalsIgnoreCase(name))
+			{
+				return i;
+			}
 		}
 		return null;
 	}

@@ -32,11 +32,31 @@ public class CommandDictionary implements IBotCommand
 					sender.sendToChannel(sender.senderName + ": No words were found for dictionary \"" + args[1] + "\"");
 					return true;
 				}
-				sender.sendToChannel(DictionaryManager.dictionaries.get(args[1]).size() + " words found: " + Utils.formatArrayToFancyString(DictionaryManager.dictionaries.get(args[1])));
+				sender.sendToChannel(DictionaryManager.dictionaries.get(args[1].toLowerCase()).size() + " words found: " + Utils.formatArrayToFancyString(DictionaryManager.dictionaries.get(args[1].toLowerCase())));
 			}
 			else
 			{
 				sender.sendToChannel(DictionaryManager.dictionaries.size() + " dictionaries avaliable: " + Utils.formatArrayToFancyString(DictionaryManager.dictionaries.keySet()));
+			}
+		}
+		else if (args[0].equals("add"))
+		{
+			if (args.length >= 3)
+			{
+				if (DictionaryManager.dictionaries.containsKey(args[1].toLowerCase()))
+				{
+					DictionaryManager.addToDictionary(args[2].toLowerCase(), args[1].toLowerCase());
+					sender.sendToChannel(sender.senderName + ": Word added.");
+				}
+				else
+				{
+					DictionaryManager.addToDictionary(args[2].toLowerCase(), args[1].toLowerCase());
+					sender.sendToChannel(sender.senderName + ": Dictionary registered and word added.");
+				}
+			}
+			else
+			{
+				sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " dict add <dictionary> <word>\"");
 			}
 		}
 		return true;

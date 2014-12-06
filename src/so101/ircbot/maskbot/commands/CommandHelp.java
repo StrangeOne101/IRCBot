@@ -14,7 +14,7 @@ public class CommandHelp implements IBotCommand {
 	@Override
 	public boolean execute(String[] args, ChannelSender sender) 
 	{
-		sender.sendToChannel("List of commands: author dictionary raw real recover reboot quit perm shutup unmute channels games help say msg self .dex .bing .random .squid .5050");
+		sender.sendToChannel("List of commands: author cookies dictionary config raw real recover reboot quit perm shutup unmute channels games help say msg self .dex .bing .random .squid .5050");
 		return true;
 	}
 
