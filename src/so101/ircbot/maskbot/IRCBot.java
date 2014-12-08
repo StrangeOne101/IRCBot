@@ -447,8 +447,33 @@ public class IRCBot
 			//String sender = parser.getNick();
 			//Whether commands that need a prefix will work.
 			boolean gotPrefix = false;
+			
+			ChannelSender csender = new ChannelSender();
+			csender.channelName = !destination.equals(getNick()) ? destination : parser.getNick();
+			csender.senderName = parser.getNick();
+			this.LASTUSEDCHANNEL = csender.channelName;
+			
+			if (!PermissionsManager.getUserHasPermission(csender, -1))
+			{
+				return;
+			}
+			
+			if (csender.senderName.toLowerCase().equals("mcobot") && csender.channelName.toLowerCase().contains("minecraftonline"))
+            {
+				if (messageIRC.contains("(MCS)") && messageIRC.contains("<") && messageIRC.contains(">"))
+                {
+                        csender.senderName = messageIRC.split("<")[1].split(">")[0];
+                        messageIRC = messageIRC.replace(messageIRC.split(">")[0] + "> ", "");
+                        fullMessage = fullMessage.replace(fullMessage.split(">")[0] + "> ", "");
+                        //IRCBot.log("Debug2", Log.DEBUG);
+                }
+                    //IRCBot.log("sender: " + csender.senderName, Log.DEBUG);
+                    //IRCBot.log("message: " + messageIRC, Log.DEBUG);
+                    //IRCBot.log("what to replace:" + messageIRC.split(">")[0] + "> ", Log.DEBUG);
+            }
+			
 			String[] tempArgs = messageIRC.toLowerCase().split(" ");
-			if (destination.startsWith("#") && tempArgs[0].startsWith(getNick().toLowerCase()))
+			if (destination.startsWith("#") && tempArgs.length > 0 && tempArgs[0].startsWith(getNick().toLowerCase()))
 		   	{
 				//If in channel and user uses prefix, then enable
 				messageIRC = messageIRC.replaceFirst(messageIRC.split(" ")[0] + " ", "");
@@ -460,10 +485,7 @@ public class IRCBot
 				//IRCBot.log("TEST WORKED", IRCLog.DEBUG);
 				gotPrefix = true;
 			}
-			ChannelSender csender = new ChannelSender();
-			csender.channelName = !destination.equals(getNick()) ? destination : parser.getNick();
-			csender.senderName = parser.getNick();
-			this.LASTUSEDCHANNEL = csender.channelName;
+			
 			try
 			{
 			//Run message through command handlers to see if it gets picked up
