@@ -31,11 +31,11 @@ public class ChannelHandler implements ICommandHandler
 			String[] args = message.split(" ");
 			if (args.length > 0)
 			{
-				if (args[0].equals("channel") || args[0].equals("channels"))
+				if (args[0].toLowerCase().equals("channel") || args[0].toLowerCase().equals("channels"))
 				{
-					if (args.length > 1 && (args[1].equals("leave") || args[1].equals("part")))
+					if (args.length > 1 && (args[1].toLowerCase().equals("leave") || args[1].toLowerCase().equals("part")))
 					{
-						if (args.length < 3 && sender.channelName == "") //If in PM (channel name is nothing in PM), they must type argument
+						if (args.length < 3 || sender.channelName == "") //If in PM (channel name is nothing in PM), they must type argument
 						{
 							sender.sendToChannel(sender.senderName + ", please specify a channel to leave");
 						}
@@ -48,7 +48,7 @@ public class ChannelHandler implements ICommandHandler
 							leaveChannel(args[2]);
 						}
 					}
-					else if (args.length > 1 && args[1].equals("join"))
+					else if (args.length > 1 && args[1].toLowerCase().equals("join"))
 					{
 						if (args.length > 2 && args[2] != "")
 						{
@@ -59,7 +59,7 @@ public class ChannelHandler implements ICommandHandler
 							sender.sendToChannel(sender.senderName + ", please specify a channel to join");
 						}
 					}
-					else if (args.length > 1 && args[1].equals("add"))
+					else if (args.length > 1 && args[1].toLowerCase().equals("add"))
 					{
 						if (PermissionsManager.permissionTable.containsKey(sender.senderName.toLowerCase()) && PermissionsManager.permissionTable.get(sender.senderName.toLowerCase()) >= 2)
 						{
@@ -81,7 +81,7 @@ public class ChannelHandler implements ICommandHandler
 							sender.sendToChannel(sender.senderName + ": Insufficient Privileges");
 						}
 					}
-					else if (args.length > 1 && args[1].equals("remove"))
+					else if (args.length > 1 && args[1].toLowerCase().equals("remove"))
 					{
 						if (PermissionsManager.permissionTable.containsKey(sender.senderName.toLowerCase()) && PermissionsManager.permissionTable.get(sender.senderName.toLowerCase()) >= 2)
 						{
@@ -111,7 +111,7 @@ public class ChannelHandler implements ICommandHandler
 							sender.sendToChannel(sender.senderName + ": Insufficient Privileges");
 						}
 					}
-					else if (args.length > 1 && args[1].equals("list"))
+					else if (args.length > 1 && args[1].toLowerCase().equals("list"))
 					{
 						String s1 = "";						
 						List<String> list = IRCBot.getInstance().currentChannels;
@@ -146,6 +146,32 @@ public class ChannelHandler implements ICommandHandler
 						sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " channels <join/leave/list>\"");
 					}
 					return true;
+				}
+				else if (args[0].toLowerCase().equals("leave") || args[0].toLowerCase().equals("part"))
+				{
+					if (args.length < 2 || sender.channelName == "") //If in PM (channel name is nothing in PM), they must type argument
+					{
+						sender.sendToChannel(sender.senderName + ", please specify a channel to leave");
+					}
+					else if (args.length < 2) //Leave the channel specified
+					{
+						leaveChannel(args[1]);
+					}
+					else //Leave the current channel
+					{
+						leaveChannel(args[1]);
+					}
+				}
+				else if (args[0].toLowerCase().equals("join"))
+				{
+					if (args.length > 1 && args[1] != "")
+					{
+						joinChannel(args[1]);
+					}
+					else
+					{
+						sender.sendToChannel(sender.senderName + ", please specify a channel to join");
+					}
 				}
 			}
 			
