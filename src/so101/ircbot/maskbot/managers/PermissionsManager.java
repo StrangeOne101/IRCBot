@@ -1,13 +1,16 @@
-package so101.ircbot.maskbot;
+package so101.ircbot.maskbot.managers;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
 
 public class PermissionsManager 
 {
 	public static Map<String, Integer> permissionTable = new HashMap<String, Integer>();
+	
+	public static final String INVALID_PERM = "Insufficient Privileges";
 	
 	public static void setUserPermission(String nick, int perm)
 	{

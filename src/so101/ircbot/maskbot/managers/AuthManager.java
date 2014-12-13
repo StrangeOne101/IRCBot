@@ -1,4 +1,6 @@
-package so101.ircbot.maskbot;
+package so101.ircbot.maskbot.managers;
+
+import so101.ircbot.maskbot.IRCBot;
 
 public class AuthManager 
 {

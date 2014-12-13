@@ -1,4 +1,4 @@
-package so101.ircbot.maskbot;
+package so101.ircbot.maskbot.managers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,6 +17,9 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonWriter;
+
+import so101.ircbot.maskbot.IRCBot;
+import so101.ircbot.maskbot.Log;
 
 public class DictionaryManager 
 {
