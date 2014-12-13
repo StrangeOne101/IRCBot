@@ -5,7 +5,7 @@ import java.util.List;
 import so101.ircbot.maskbot.ICommandHandler;
 import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
-import so101.ircbot.maskbot.PermissionsManager;
+import so101.ircbot.maskbot.managers.PermissionsManager;
 import so101.ircbot.maskbot.Utils;
 
 public class ChannelHandler implements ICommandHandler 
@@ -78,7 +78,7 @@ public class ChannelHandler implements ICommandHandler
 						}
 						else
 						{
-							sender.sendToChannel(sender.senderName + ": Insufficient Privileges");
+							sender.sendToChannel(sender.senderName + ": " + PermissionsManager.INVALID_PERM);
 						}
 					}
 					else if (args.length > 1 && args[1].toLowerCase().equals("remove"))
@@ -108,7 +108,7 @@ public class ChannelHandler implements ICommandHandler
 						}
 						else
 						{
-							sender.sendToChannel(sender.senderName + ": Insufficient Privileges");
+							sender.sendToChannel(sender.senderName + ": " + PermissionsManager.INVALID_PERM);
 						}
 					}
 					else if (args.length > 1 && args[1].toLowerCase().equals("list"))

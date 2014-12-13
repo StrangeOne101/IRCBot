@@ -5,7 +5,7 @@ import java.util.Random;
 import so101.ircbot.maskbot.IBotCommand;
 import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
-import so101.ircbot.maskbot.PermissionsManager;
+import so101.ircbot.maskbot.managers.PermissionsManager;
 import so101.ircbot.maskbot.RandomRegistry;
 
 public class CommandRandom implements IBotCommand {

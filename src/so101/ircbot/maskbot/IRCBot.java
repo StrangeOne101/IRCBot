@@ -2,6 +2,8 @@ package so101.ircbot.maskbot;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -13,18 +15,24 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 import so101.ircbot.maskbot.commands.*;
 import so101.ircbot.maskbot.commands.dex.Pokedex;
 import so101.ircbot.maskbot.games.MapGame;
 import so101.ircbot.maskbot.handlers.ChannelHandler;
-import so101.ircbot.maskbot.handlers.ChatHandler;
 import so101.ircbot.maskbot.handlers.CookieHandler;
 import so101.ircbot.maskbot.handlers.GeneralCommandHandler;
 import so101.ircbot.maskbot.handlers.MapGameHandler;
 import so101.ircbot.maskbot.handlers.MuteHandler;
 import so101.ircbot.maskbot.handlers.PermHander;
+import so101.ircbot.maskbot.handlers.PingHandler;
+import so101.ircbot.maskbot.managers.DictionaryManager;
+import so101.ircbot.maskbot.managers.PermissionsManager;
+import so101.ircbot.maskbot.managers.RedditManager;
 
 public class IRCBot
 {
@@ -159,6 +167,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandMeReply("kill"));
 		CommandRegistry.registerCommand(new CommandMeReply("beat"));
 		CommandRegistry.registerCommand(new Command5050());
+		CommandRegistry.registerCommand(new CommandPics());
 		CommandRegistry.registerCommand(new CommandSay());
 		//CommandRegistry.registerCommand(new CommandLeave());
 		CommandRegistry.registerCommand(new CommandGame());
@@ -182,12 +191,15 @@ public class IRCBot
 		CommandRegistry.registerCommandHandler(new ChannelHandler());
 		CommandRegistry.registerCommandHandler(new GeneralCommandHandler());
 		CommandRegistry.registerCommandHandler(new PermHander());
+		CommandRegistry.registerCommandHandler(new PingHandler());
 		CommandRegistry.registerCommandHandler(new MapGameHandler());
 		//CommandRegistry.registerCommandHandler(new ChatHandler());
 		
 		IRCBot.log("Grabbing Pokedex Data", Log.INFO);
 		Pokedex.fetchData(null);
 		IRCBot.log("Data mapped.", Log.INFO);
+		
+		RedditManager.fetchData();
 		
 		IRCBot.log("Attempting to get info from server...", Log.INFO);
 		this.run();
@@ -213,6 +225,25 @@ public class IRCBot
 			IRCBot.log("Joining " + s, Log.INFO);
 			this.sendToIRC("JOIN " + s);
 		}
+		
+		File file = new File("config.cfg");
+		FileReader reader;
+		try {
+			reader = new FileReader(file);
+			JsonReader jsonReader = Json.createReader(reader);
+			JsonObject json = jsonReader.readObject();
+			JsonObject jObjectCookies = json.getJsonObject("Cookies");
+			
+			try {
+				for (String k1 : jObjectCookies.keySet())
+				{
+					((CookieHandler)CommandRegistry.commandHandlerList.get(0)).storedCookies.put(k1, jObjectCookies.getInt(k1));
+				}
+			}
+			catch (NullPointerException e) {}
+		} catch (FileNotFoundException e) {}
+		
+		
 		//IRCLog.forceSaveLog();
 		//ConfigSettings.testYaml();
 		
@@ -564,9 +595,9 @@ public class IRCBot
 	}
 
 	/**Log line with valid level*/
-	public static void log(String line, Log level)
+	public static void log(String line, Log log)
 	{
-		System.out.println("[" + level + "] " + line);
+		System.out.println("[" + log + "] " + line);
 	}
 	
 	/**Returns the nickname of the bot.*/

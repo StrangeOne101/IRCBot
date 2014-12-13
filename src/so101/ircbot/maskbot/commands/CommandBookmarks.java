@@ -3,25 +3,26 @@ package so101.ircbot.maskbot.commands;
 import so101.ircbot.maskbot.IBotCommand;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
 
-public class CommandHelp implements IBotCommand {
+public class CommandBookmarks implements IBotCommand
+{
 
 	@Override
 	public String getCommandName() 
 	{
-		return "help";
+		return "bookmark";
 	}
 
 	@Override
 	public boolean execute(String[] args, ChannelSender sender) 
 	{
-		sender.sendToChannel("List of commands: author cookies dictionary config raw real recover reboot quit perm shutup unmute channels games help say msg self .dex .bing .random .pic .ping .5050");
-		return true;
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
 	public String[] getAliasis() 
 	{
-		return new String[] {"?", "halp"};
+		return new String[] {"bookmarks"};
 	}
 
 	@Override

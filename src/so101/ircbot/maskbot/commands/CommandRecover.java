@@ -1,8 +1,8 @@
 package so101.ircbot.maskbot.commands;
 
 import so101.ircbot.maskbot.IBotCommand;
-import so101.ircbot.maskbot.PermissionsManager;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
+import so101.ircbot.maskbot.managers.PermissionsManager;
 
 public class CommandRecover implements IBotCommand 
 {

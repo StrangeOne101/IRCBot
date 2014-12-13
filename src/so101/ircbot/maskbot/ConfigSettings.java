@@ -23,6 +23,7 @@ import javax.json.stream.JsonGenerator;
 import so101.ircbot.maskbot.games.MapGame;
 import so101.ircbot.maskbot.games.Player;
 import so101.ircbot.maskbot.handlers.CookieHandler;
+import so101.ircbot.maskbot.managers.PermissionsManager;
 
 public class ConfigSettings 
 {
@@ -159,7 +160,7 @@ public class ConfigSettings
 				JsonReader jsonReader = Json.createReader(reader);
 				JsonObject json = jsonReader.readObject();
 				JsonArray jArrayChannels = json.getJsonArray("Channels");
-				JsonObject jObjectCookies = json.getJsonObject("Cookies");
+				
 				JsonArray jArrayMutedChannels = json.getJsonArray("MutedChannels");
 				JsonArray jArrayChatCmds = json.getJsonArray("ChatCommands");
 				JsonObject jObjectPerms = json.getJsonObject("Permissions");
@@ -210,14 +211,6 @@ public class ConfigSettings
 						p.posY = player.getInt("PosY");		
 					}
 					
-				}
-				catch (NullPointerException e) {}
-				
-				try {
-					for (String k1 : jObjectCookies.keySet())
-					{
-						((CookieHandler)CommandRegistry.commandHandlerList.get(0)).storedCookies.put(k1, jObjectCookies.getInt(k1));
-					}
 				}
 				catch (NullPointerException e) {}
 				
@@ -309,5 +302,29 @@ public class ConfigSettings
 		catch (IOException e) 
 		{
 		}
+	}
+	
+	public static boolean writeFile(JsonObject object, File file)
+	{
+		FileWriter writer = null;
+		try {
+			writer = new FileWriter(file);
+		} catch (IOException e) {
+			IRCBot.log("Error while writing object to file \"" + file.getName() + "\"!", Log.SEVERE);
+			return false;
+		}
+		Map<String, Object> properties = new HashMap<String, Object>(1);
+        properties.put(JsonGenerator.PRETTY_PRINTING, true);
+        JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+		JsonWriter jsonWriter = writerFactory.createWriter(writer);
+		jsonWriter.writeObject(object);
+		jsonWriter.close();
+		try {
+			writer.close();
+		} catch (IOException e) {
+			IRCBot.log("Error while writing object to file \"" + file.getName() + "\"!", Log.SEVERE);
+			return false;
+		}
+		return true;
 	}
 }

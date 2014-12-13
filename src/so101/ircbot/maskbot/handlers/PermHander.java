@@ -2,9 +2,9 @@ package so101.ircbot.maskbot.handlers;
 
 import so101.ircbot.maskbot.ICommandHandler;
 import so101.ircbot.maskbot.IRCBot;
-import so101.ircbot.maskbot.PermissionsManager;
 import so101.ircbot.maskbot.Utils;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
+import so101.ircbot.maskbot.managers.PermissionsManager;
 
 public class PermHander implements ICommandHandler 
 {

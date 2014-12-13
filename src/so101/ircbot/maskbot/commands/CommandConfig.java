@@ -43,7 +43,7 @@ public class CommandConfig implements IBotCommand {
 	@Override
 	public String[] getAliasis() 
 	{
-		return null;
+		return new String[] {"data"};
 	}
 
 	@Override
