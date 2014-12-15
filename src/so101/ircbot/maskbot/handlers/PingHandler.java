@@ -157,7 +157,7 @@ public class PingHandler implements ICommandHandler
 			}
 			else if (args.length > 1 && args[0].toLowerCase().equals("pingtest"))
 			{
-				int id = Integer.parseInt(args[4]);
+				int id = Integer.parseInt(args[5]);
 				double delay = PingManager.getTimeDifference(PingManager.getCurrentTime(), args[3]);
 				pingResultTimes.get(id).add(delay);
 				pingResultsString.get(id).add(message);
