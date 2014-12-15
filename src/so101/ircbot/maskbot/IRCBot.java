@@ -26,6 +26,7 @@ import so101.ircbot.maskbot.games.MapGame;
 import so101.ircbot.maskbot.handlers.ChannelHandler;
 import so101.ircbot.maskbot.handlers.CookieHandler;
 import so101.ircbot.maskbot.handlers.GeneralCommandHandler;
+import so101.ircbot.maskbot.handlers.LeaveHandler;
 import so101.ircbot.maskbot.handlers.MapGameHandler;
 import so101.ircbot.maskbot.handlers.MuteHandler;
 import so101.ircbot.maskbot.handlers.PermHander;
@@ -192,6 +193,7 @@ public class IRCBot
 		CommandRegistry.registerCommandHandler(new GeneralCommandHandler());
 		CommandRegistry.registerCommandHandler(new PermHander());
 		CommandRegistry.registerCommandHandler(new PingHandler());
+		CommandRegistry.registerCommandHandler(new LeaveHandler());
 		CommandRegistry.registerCommandHandler(new MapGameHandler());
 		//CommandRegistry.registerCommandHandler(new ChatHandler());
 		
