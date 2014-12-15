@@ -161,6 +161,8 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandReply("MaskBot play", "%s: If you're looking to play a game, try \"MaskBot games play <game>\""));
 		CommandRegistry.registerCommand(new CommandReply(".bing", "You're trying to use bing... You know that?"));
 		CommandRegistry.registerCommand(new CommandReply(".squid", "So you like squids, eh? http://i.imgur.com/daYZgQL.jpg"));
+		CommandRegistry.registerCommand(new CommandReply("!dabooty", "%s: Da Booty ( ͡° ͜ʖ ͡°)"));
+		
 		CommandRegistry.registerCommand(new CommandMeReply("kill"));
 		CommandRegistry.registerCommand(new CommandMeReply("stab"));
 		CommandRegistry.registerCommand(new CommandMeReply("whack"));
