@@ -26,11 +26,11 @@ public class CommandMeReply implements IBotCommand
 	{
 		for (int i = 0; i < args.length; i++)
 		{
-			if (args[i].toLowerCase().equals("me"))
+			if (args[i].toLowerCase().equals("me") || args[i].toLowerCase().equals("meh"))
 			{
 				args[i] = sender.senderName;
 			}
-			else if (args[i].toLowerCase().equals("my"))
+			else if (args[i].toLowerCase().equals("my") || args[i].toLowerCase().equals("mah"))
 			{
 				args[i] = sender.senderName + "'" + (sender.senderName.endsWith("s") ? "" : "s");
 			}
@@ -45,14 +45,14 @@ public class CommandMeReply implements IBotCommand
 			s = Utils.formatStringForSender(s, sender);
 			s.replaceAll(":", "\\:");
 			s.replaceAll("me ", "\\:");
-			sender.sendToChannel("\u0001ACTION " + command + "s " + s);
+			sender.sendToChannel("\u0001ACTION " + command + "s " + s + "\u0001");
 		}
 		else
 		{
 			String s = Utils.formatArrayToString(args);
 			s = Utils.formatStringForSender(s, sender);
 			s.replaceAll(":", "\\:");
-			sender.sendToChannel("\u0001ACTION " + command + "s " + sender.senderName);
+			sender.sendToChannel("\u0001ACTION " + command + "s " + sender.senderName + "\u0001");
 		}
 		return true;
 	}
