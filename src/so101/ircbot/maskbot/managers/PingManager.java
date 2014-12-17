@@ -9,7 +9,7 @@ import so101.ircbot.maskbot.Log;
 
 public class PingManager
 {
-	private static SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss:SS");
+	private static SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss:SSSS");
 	
 	public static String getCurrentTime()
 	{
@@ -30,7 +30,7 @@ public class PingManager
 		} 
 		catch (ParseException e) 
 		{
-			IRCBot.log("Couldn't parse time while processing difference!", Log.SEVERE);
+			IRCBot.log("Couldn't parse time while processing difference! (" + date1 + ", " + date2 + ")", Log.SEVERE);
 		}
 		
 		return -1F;
