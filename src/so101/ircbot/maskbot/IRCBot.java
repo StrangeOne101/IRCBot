@@ -73,7 +73,7 @@ public class IRCBot
 	
 	public List<String> mutedChannels = new ArrayList<String>();
 	public List<String> channels = new ArrayList<String>();
-	
+	public List<String> testingChannels = new ArrayList<String>();
 	public List<String> currentChannels = new ArrayList<String>();
 	
 	public boolean debugMode = false;
@@ -96,6 +96,11 @@ public class IRCBot
 		public String senderName;
 		public void sendToChannel(String line)
 		{
+			if (mutedChannels.contains(this.channelName))
+			{
+				this.sendToSender(line);
+				return;
+			}
 			if (channelName == "")
 			{
 				sendToIRC("PRIVMSG " + senderName + " :" + line);
@@ -139,9 +144,9 @@ public class IRCBot
 		//this.localThread.start();
 		
 		IRCBot.log("Giving espernet cresidentials", Log.INFO);
-		//sendToIRC("PASS " + password);
 		sendToIRC("NICK " + getNick());
 		sendToIRC("USER " + this.management.BOT_CRESIDENTIALS.get("USER") + " 0 * : " + getNick() + ", Made in Strange's Bot Factory");
+		sendToIRC("PASS " + this.management.BOT_CRESIDENTIALS.get("PASS"));
 		
 		IRCBot.log("Initing Map Game Data", Log.INFO);
 		new MapGame();
@@ -169,6 +174,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandMeReply("slap"));
 		CommandRegistry.registerCommand(new CommandMeReply("kill"));
 		CommandRegistry.registerCommand(new CommandMeReply("beat"));
+		CommandRegistry.registerCommand(new CommandMeReply("smack"));
 		CommandRegistry.registerCommand(new Command5050());
 		CommandRegistry.registerCommand(new CommandPics());
 		CommandRegistry.registerCommand(new CommandSay());
@@ -181,13 +187,15 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandCookie());
 		CommandRegistry.registerCommand(new CommandRestart());
 		CommandRegistry.registerCommand(new CommandRandom());
-		CommandRegistry.registerCommand(new CommandDebug());
+		//CommandRegistry.registerCommand(new CommandDebug());
 		CommandRegistry.registerCommand(new CommandRecover());
 		CommandRegistry.registerCommand(new CommandReal());
 		CommandRegistry.registerCommand(new CommandDictionary());
 		CommandRegistry.registerCommand(new CommandCommands());
 		CommandRegistry.registerCommand(new CommandAuthor());
 		CommandRegistry.registerCommand(new CommandConfig());
+		CommandRegistry.registerCommand(new CommandToggle());
+		CommandRegistry.registerCommand(new CommandSudo());
 		
 		CommandRegistry.registerCommandHandler(new CookieHandler());
 		CommandRegistry.registerCommandHandler(new MuteHandler());
@@ -247,7 +255,7 @@ public class IRCBot
 			catch (NullPointerException e) {}
 		} catch (FileNotFoundException e) {}
 		
-		
+		this.testingChannels.add("#StrangeOne101");
 		//IRCLog.forceSaveLog();
 		//ConfigSettings.testYaml();
 		
@@ -304,17 +312,20 @@ public class IRCBot
 				e.printStackTrace();
 			}
 		}
-		IRCBot.toServer.print(line + "\r\n");
-		IRCBot.toServer.flush();
-		IRCBot.log("Bot --> Server: " + line, Log.LOG);
-		this.ticksSinceLastSend = 0;
+		if (line != null)
+		{
+			IRCBot.toServer.print(line + "\r\n");
+			IRCBot.toServer.flush();
+			IRCBot.log("Bot --> Server: " + line, Log.LOG);
+			this.ticksSinceLastSend = 0;
+		}
 	}
 
 	/**Close current connections*/
 	public void closeConnections()
 	{
 		IRCBot.log("Closing connections, exiting.", Log.INFO);
-		this.sendToIRC("EXIT :QUIT Bot closed.");
+		this.sendToIRC("QUIT :Bot closed.");
 		
 		try
 		{
@@ -433,8 +444,23 @@ public class IRCBot
 	{
 		IRCBot.log("Server --> Bot: " + line, Log.LOG);
 		
+		line = line.replaceAll("&(?i)" + ChatColors.BLACK, ChatColors.BLACK.s);
+		line = line.replaceAll("&(?i)" + ChatColors.RED, ChatColors.RED.s);
+		line = line.replaceAll("&(?i)" + ChatColors.DARKRED, ChatColors.DARKRED.s);
+		line = line.replaceAll("&(?i)" + ChatColors.ORANGE, ChatColors.ORANGE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.YELLOW, ChatColors.YELLOW.s);
+		line = line.replaceAll("&(?i)" + ChatColors.GREEN, ChatColors.GREEN.s);
+		line = line.replaceAll("&(?i)" + ChatColors.DARKGREEN, ChatColors.DARKGREEN.s);
+		line = line.replaceAll("&(?i)" + ChatColors.CYAN, ChatColors.CYAN.s);
+		line = line.replaceAll("&(?i)" + ChatColors.BLUE, ChatColors.BLUE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.DARKBLUE, ChatColors.DARKBLUE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.PURPLE, ChatColors.PURPLE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.DARKPURPLE, ChatColors.DARKPURPLE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.GREY, ChatColors.GREY.s);
+		
 		IRCParser parser = new IRCParser(line);
 		String command = parser.getCommand();
+		
 		InputMessage m = new InputMessage();
 		m.channel = parser.getMiddle();
 		m.message = parser.getTrailing();
