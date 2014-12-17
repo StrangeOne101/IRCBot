@@ -123,13 +123,13 @@ public class PingHandler implements ICommandHandler
 						}
 						if (l.size() > 0)
 						{
-							s = "(" + Utils.formatArrayToFancyString(l) + ").";
+							s = " (" + Utils.formatArrayToFancyString(l) + ").";
 						}
 						else
 						{
 							s = ".";
 						} // Unusual 
-						sender.sendToChannel(sender.senderName + ": " + results + "/" + pingCount_ + " results returned with " + l.size() + " unusual results" + s + " Took " + timeTaken + " seconds.");
+						sender.sendToChannel(sender.senderName + ": " + results + "/" + pingCount_ + " results returned with " + l.size() + " unusual result" + (l.size() == 1 ? "" : "s") + s + " Took " + timeTaken + " seconds.");
 						pingResultTimes.remove(id);
 						pingResultsString.remove(id);
 					} 
@@ -158,7 +158,7 @@ public class PingHandler implements ICommandHandler
 			else if (args.length > 1 && args[0].toLowerCase().equals("pingtest"))
 			{
 				int id = Integer.parseInt(args[5]);
-				double delay = PingManager.getTimeDifference(PingManager.getCurrentTime(), args[3]);
+				double delay = PingManager.getTimeDifference(PingManager.getCurrentTime(), args[4]);
 				pingResultTimes.get(id).add(delay);
 				pingResultsString.get(id).add(message);
 			}
