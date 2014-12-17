@@ -2,19 +2,20 @@ package so101.ircbot.maskbot;
 
 public enum ChatColors 
 {
-	RED("\u000204"), 
-	DARKRED("\u000205"),
-	ORANGE("\u000207"), 
-	YELLOW("\u000208"),
-	GREEN("\u000209"),
-	DARKGREEN("\u000203"),
-	CYAN("\u000210"),
-	BLUE("\u000211"),
-	DARKBLUE("\u000212"),
-	PURPLE("\u000213"),
-	DARKPURPLE("\u000206"),
-	GREY("\u000214"),
-	BLACK("\u000201"),
+	RED("\u000304"), 
+	DARKRED("\u000305"),
+	ORANGE("\u000307"), 
+	YELLOW("\u000308"),
+	GREEN("\u000309"),
+	DARKGREEN("\u000303"),
+	CYAN("\u000310"),
+	BLUE("\u000311"),
+	DARKBLUE("\u000312"),
+	PURPLE("\u000313"),
+	DARKPURPLE("\u000306"),
+	GREY("\u000314"),
+	BLACK("\u000301"),
+	BOLD("\u0002")
 	;
 	
 	ChatColors(String s) 

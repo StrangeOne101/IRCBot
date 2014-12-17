@@ -457,6 +457,7 @@ public class IRCBot
 		line = line.replaceAll("&(?i)" + ChatColors.PURPLE, ChatColors.PURPLE.s);
 		line = line.replaceAll("&(?i)" + ChatColors.DARKPURPLE, ChatColors.DARKPURPLE.s);
 		line = line.replaceAll("&(?i)" + ChatColors.GREY, ChatColors.GREY.s);
+		line = line.replaceAll("&(?i)" + ChatColors.BOLD, ChatColors.BOLD.s);
 		
 		IRCParser parser = new IRCParser(line);
 		String command = parser.getCommand();
