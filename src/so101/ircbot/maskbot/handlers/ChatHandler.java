@@ -51,7 +51,7 @@ public class ChatHandler implements ICommandHandler
 				{
 					if (args[args.length - 1].equals(s1))
 					{
-						thingToLookFor = thingToLookFor + " " + s1;
+						thingToLookFor = thingToLookFor.equals("") ? s1 : thingToLookFor + " " + s1;
 					}
 					
 					if (!curFormat.equals(""))
