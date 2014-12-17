@@ -180,7 +180,7 @@ public class ChannelHandler implements ICommandHandler
 	}
 	
 	/**Joins channel*/
-	protected static void joinChannel(String channel)
+	public static void joinChannel(String channel)
 	{
 		String chan = channel;
 		if (!channel.startsWith("#"))
@@ -195,7 +195,7 @@ public class ChannelHandler implements ICommandHandler
 	}
 	
 	/**Leaves channel*/
-	protected static void leaveChannel(String channel)
+	public static void leaveChannel(String channel)
 	{
 		String chan = channel;
 		if (!channel.startsWith("#"))
