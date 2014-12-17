@@ -7,6 +7,7 @@ import so101.ircbot.maskbot.CommandRegistry;
 import so101.ircbot.maskbot.ICommandHandler;
 import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
+import so101.ircbot.maskbot.ThreadedProcess;
 import so101.ircbot.maskbot.Utils;
 
 public class ChatHandler implements ICommandHandler 
@@ -19,14 +20,14 @@ public class ChatHandler implements ICommandHandler
 	}
 
 	@Override
-	public boolean onCommand(String message, ChannelSender sender) 
+	public boolean onCommand(String message, final ChannelSender sender) 
 	{
 		for (int i = 0; i < CommandRegistry.chatCommands.size(); i++)
 		{
-			String s = CommandRegistry.chatCommands.get(i);
-			s = s.replaceAll("\\:", "");
-			s = s.replaceAll(",", "");
-			s = s.replaceAll("&ACTION", "\u0001ACTION");
+			String s = Utils.formatStringForSender(CommandRegistry.chatCommands.get(i), sender);
+			//s = s.replaceAll("\\:", "");
+			//s = s.replaceAll(",", "");
+			//s = s.replaceAll("&ACTION", "\u0001ACTION");
 			/** Contains: -c
 			 *  Equals -e
 			 *  StartsWith -s
@@ -42,10 +43,17 @@ public class ChatHandler implements ICommandHandler
 			List<String> equals = new ArrayList<String>();
 			List<String> startswith = new ArrayList<String>();
 			List<String> endswith = new ArrayList<String>();
+			List<Object> replies = new ArrayList<Object>();
+			List<String> options = new ArrayList<String>();
 			for (String s1 : args)
 			{
 				if (s1.startsWith("-") || args[args.length - 1].equals(s1))
 				{
+					if (args[args.length - 1].equals(s1))
+					{
+						thingToLookFor = thingToLookFor + " " + s1;
+					}
+					
 					if (!curFormat.equals(""))
 					{
 						switch (curFormat)
@@ -63,10 +71,14 @@ public class ChatHandler implements ICommandHandler
 							endswith.add(thingToLookFor);
 							break;
 						case "-r":
-							reply = thingToLookFor + args[args.length - 1];
+							replies.add(new String(thingToLookFor));
 							break;
 						case "-o":
-							reply = thingToLookFor + args[args.length - 1];	
+							//reply = thingToLookFor + args[args.length - 1];	
+							options.add(thingToLookFor);
+							break;
+						case "-d":
+							replies.add(new Double(thingToLookFor));
 							break;
 						}
 					}
@@ -82,10 +94,10 @@ public class ChatHandler implements ICommandHandler
 				}
 			}
 			
-			if (reply.startsWith("~"))
+			/*if (reply.startsWith("~"))
 			{
 				reply = reply.replaceFirst("~", "");
-			}
+			}*/
 			if (IRCBot.getInstance().debugMode)
 			{
 				IRCBot.alertRoots(contains.toString());
@@ -95,28 +107,28 @@ public class ChatHandler implements ICommandHandler
 			}
 			for (String s2 : contains)
 			{
-				if (!message.toLowerCase().contains(this.formatStringForAll(s2.toLowerCase(), sender)))
+				if (!message.toLowerCase().contains(s2.toLowerCase()))
 				{
 					flag = false;
 				}
 			}
 			for (String s3 : equals)
 			{
-				if (!message.toLowerCase().equalsIgnoreCase(this.formatStringForAll(s3, sender)))
+				if (!message.toLowerCase().equalsIgnoreCase(s3.toLowerCase()))
 				{
 					flag = false;
 				}
 			}
 			for (String s4 : startswith)
 			{
-				if (!message.toLowerCase().startsWith(this.formatStringForAll(s4.toLowerCase(), sender)))
+				if (!message.toLowerCase().startsWith(s4.toLowerCase()))
 				{
 					flag = false;
 				}
 			}
 			for (String s5 : endswith)
 			{
-				if (!message.toLowerCase().endsWith(this.formatStringForAll(s5.toLowerCase(), sender)))
+				if (!message.toLowerCase().endsWith(s5.toLowerCase()))
 				{
 					flag = false;
 				}
@@ -125,49 +137,59 @@ public class ChatHandler implements ICommandHandler
 			if (reply.startsWith("~"))
 			{
 				reply.replaceFirst("~", "\u0001ACTION");
+				reply = reply + "\u0001";
 			}
 			
 			if (flag)
 			{
-				if (reply.equals(""))
+				/*if (reply.equals(""))
 				{
 					IRCBot.getInstance().sendToIRC("PRIVMSG Strange :Strange: An error was found in chatmessage #" + i + " as no reply was found.");
 					return false;
-				}
-				sender.sendToChannel(reply);
+				}*/
+				
+				final List<Object> replies_ = replies;
+				final int a = i;
+				ThreadedProcess p = new ThreadedProcess() {
+					
+					@Override
+					public void run() 
+					{
+						for (Object o : replies_)
+						{
+							if (o instanceof String)
+							{
+								sender.sendToChannel(o.toString());
+							}
+							else if (o instanceof Integer || o instanceof Double)
+							{
+								try 
+								{
+									Thread.sleep((long) (Double.parseDouble(o.toString()) * 1000L));
+								} 
+								catch (NumberFormatException e) 
+								{
+									IRCBot.getInstance().sendToIRC("PRIVMSG Strange :Strange: An error was found in chatmessage #" + a + " as delay could not be parsed.");
+								} 
+								catch (InterruptedException e) 
+								{
+									IRCBot.getInstance().sendToIRC("PRIVMSG Strange :Strange: An error was found in chatmessage #" + a + " as the reply thread was interupted!");
+								}
+							}
+							else
+							{
+								IRCBot.alertRoots("%s: Something broke!");
+							}
+						}
+					}
+				};
+				p.start();
+				//sender.sendToChannel(reply);
 				return true;
 			}
 			
 		}
 		return false;
-	}
-	
-	/**Replaces all needed fields in string. Use string.split(" ") to give array.*/
-	public String formatStringForAll(String[] message, ChannelSender sender)
-	{
-		String[] newS = message;
-		for (int i = 0; i < message.length; i++)
-		{
-			newS[i] = this.replaceVariableForWorld(message[i], "nick", IRCBot.getNick());
-			newS[i] = this.replaceVariableForWorld(message[i], "n", IRCBot.getNick());
-			newS[i] = this.replaceVariableForWorld(message[i], "s", sender.senderName);
-			newS[i] = this.replaceVariableForWorld(message[i], "c", sender.channelName);			
-		}
-		return Utils.formatArrayToString(newS);
-	}
-	
-	/**Replaces all needed fields. ONLY USE FOR SINGLE WORDS!!*/
-	public String formatStringForAll(String word, ChannelSender sender)
-	{
-		word = this.replaceVariableForWorld(word, "%nick", IRCBot.getNick());
-		word = this.replaceVariableForWorld(word, "%n", IRCBot.getNick());
-		word = this.replaceVariableForWorld(word, "%s", sender.senderName);
-		word = this.replaceVariableForWorld(word, "%c", sender.channelName);
-		word = this.replaceVariableForWorld(word, "%NICK", IRCBot.getNick());
-		word = this.replaceVariableForWorld(word, "%N", IRCBot.getNick());
-		word = this.replaceVariableForWorld(word, "%S", sender.senderName);
-		word = this.replaceVariableForWorld(word, "%C", sender.channelName);
-		return word;
 	}
 	
 	public String replaceVariableForWorld(String originalWord, String var, String newvar)

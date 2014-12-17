@@ -76,7 +76,7 @@ public class Utils
 	/**Replaces all %s, %n and %c for data (Sender name, Nickname of bot, Channel name)*/
 	public static String formatStringForSender(String baseString, ChannelSender chansender)
 	{
-		return baseString.replaceAll("%NICK", IRCBot.getNick()).replaceAll("%s", chansender.senderName).replaceAll("%n", IRCBot.getNick()).replaceAll("%c", chansender.channelName).replaceAll("%bot", IRCBot.getNick());
+		return baseString.replaceAll("%(?i)nick", IRCBot.getNick()).replaceAll("%(?i)sender", chansender.senderName).replaceAll("%(?i)channel", chansender.channelName).replaceAll("%(?i)s", chansender.senderName).replaceAll("%(?i)n", IRCBot.getNick()).replaceAll("%(?i)c", chansender.channelName).replaceAll("%(?i)bot", IRCBot.getNick());
 	}
 	
 	/**Formats string by splitting array list with spaces, commas and "and"s for proper english*/
