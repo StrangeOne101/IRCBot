@@ -65,7 +65,7 @@ public class CommandCommands implements IBotCommand
 									sender.sendToChannel(sender.senderName + ": Page number has to be positive.");
 									return true;
 								}
-								else if (Integer.parseInt(args[2]) > CommandRegistry.chatCommands.size() / 5)
+								else if (Integer.parseInt(args[2]) + 1 > Math.ceil(((double)CommandRegistry.chatCommands.size() / 5)))
 								{
 									sender.sendToChannel(sender.senderName + ": No page found.");
 									return true;
@@ -82,7 +82,7 @@ public class CommandCommands implements IBotCommand
 							}
 						}
 						
-						for (int i = page; i < CommandRegistry.chatCommands.size() && i < page + 5; i++)
+						for (int i = page * 5; i < CommandRegistry.chatCommands.size() && i < page * 5 + 5; i++)
 						{
 							sender.sendToChannel("Command #" + i + ": " + CommandRegistry.chatCommands.get(i));
 						}
