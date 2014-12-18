@@ -12,6 +12,7 @@ public class BotSettings
 	protected Map<String, Object> BOT_CRESIDENTIALS = new HashMap<String, Object>();
 	public final String nicknameDefault = "__INSERT_NICK_HERE__";
 	public final String userDefault = "__INSERT_USER_HERE__";
+	public final String rootDefault = "__INSERT_ROOT_USER_HERE__";
 	public final String serverDefault = "irc.esper.net";
 	public final int portDefault = 6667;
 	
@@ -36,7 +37,7 @@ public class BotSettings
 	
 	public boolean isCresidentialsValid()
 	{
-		if (!BOT_CRESIDENTIALS.containsKey("NICK") || !BOT_CRESIDENTIALS.containsKey("USER"))
+		if (!BOT_CRESIDENTIALS.containsKey("NICK") || !BOT_CRESIDENTIALS.containsKey("USER") || !BOT_CRESIDENTIALS.containsKey("ROOT"))
 		{
 			return false;
 		}
@@ -45,6 +46,10 @@ public class BotSettings
 			return false;
 		}
 		if (BOT_CRESIDENTIALS.get("USER").equals("") || BOT_CRESIDENTIALS.get("USER").equals(userDefault))
+		{
+			return false;
+		}
+		if (BOT_CRESIDENTIALS.get("ROOT").equals("") || BOT_CRESIDENTIALS.get("ROOT").equals(rootDefault))
 		{
 			return false;
 		}
