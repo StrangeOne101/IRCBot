@@ -262,6 +262,7 @@ public class ConfigSettings
 						PermissionsManager.permissionTable.put(j, jObjectPerms.getInt(j));
 					}
 				}
+				reader.close();
 			} 
 			catch (FileNotFoundException e) {} catch (IOException e1) {
 				// TODO Auto-generated catch block
