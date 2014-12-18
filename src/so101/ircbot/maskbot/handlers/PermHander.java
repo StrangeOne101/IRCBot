@@ -34,9 +34,9 @@ public class PermHander implements ICommandHandler
 							{
 								if (Utils.isInteger(args[2]))
 								{
-									if (Integer.parseInt(args[2]) > PermissionsManager.permissionTable.get(sender.senderName.toLowerCase()))
+									if (Integer.parseInt(args[2]) >= PermissionsManager.permissionTable.get(sender.senderName.toLowerCase()))
 									{
-										sender.sendToChannel(sender.senderName + ": You can not set a permission level to something higher than your own");
+										sender.sendToChannel(sender.senderName + ": You can not set a permission level to something equal to or higher than your own");
 										return true;
 									}
 									if (PermissionsManager.permissionTable.containsKey(args[1].toLowerCase()))
