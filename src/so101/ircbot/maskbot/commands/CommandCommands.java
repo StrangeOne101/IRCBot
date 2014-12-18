@@ -214,16 +214,34 @@ public class CommandCommands implements IBotCommand
 			}
 			else if (args[0].toLowerCase().equals("chat"))
 			{
-				sender.sendToChannel(sender.senderName + ": Command has been updated. Just use \"" + IRCBot.getNick() + " commands <add/remove/edit/list/help>\" now without the \"chat\" argument.");
+				sender.sendToChannel(sender.senderName + ": Command has been updated. Just use \"" + IRCBot.getNick() + " commands <add/remove/edit/list/help/preview>\" now without the \"chat\" argument.");
+			}
+			else if (args[0].toLowerCase().equals("preview"))
+			{
+				if (args.length > 1 && Utils.isInteger(args[1]))
+				{
+					if (CommandRegistry.chatCommands.size() > Integer.parseInt(args[1]))
+					{
+						sender.sendToChannel(sender.senderName + ": Command #" + args[1] + " is \"" + CommandRegistry.chatCommands.get(Integer.parseInt(args[1])) + "\"");
+					}
+					else
+					{
+						sender.sendToChannel(sender.senderName + ": No command found for ID #" + args[1] + "!");
+					}
+				}
+				else
+				{
+					sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands preview <number>\"");
+				}
 			}
 			else
 			{
-				sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands <add/remove/edit/list/help>\"");
+				sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands <add/remove/edit/list/help/preview>\"");
 			}	
 		}
 		else
 		{
-			sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands <add/remove/edit/list/help>\"");
+			sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands <add/remove/edit/list/help/preview>\"");
 		}
 		return true;
 	}
@@ -251,11 +269,25 @@ public class CommandCommands implements IBotCommand
 	
 	public boolean canRegisterCommand(String command, ChannelSender sender)
 	{
-		if ((command.contains("-r") || command.contains("-o")) && (command.contains("-c") || command.contains("-s") || command.contains("-n") || command.contains("-e")))
+		String[] args = command.split(" ");
+		for (String s : args)
+		{
+			if (s.startsWith("-a"))
+			{
+				s.replaceFirst("-a", "");
+				if (!(s.contains("[") || s.contains("]")) || s.toCharArray()[1] == ']')
+				{
+					sender.sendToChannel(sender.senderName + ": At least one argument must be specified in square brackets ([ and ]). Use -a in format \"-a[?]\" or \"-a[?-?]\" or \"-a[?+]\". ? symbolises number.");
+					return false;
+				}
+			}
+		}
+		
+		if ((command.contains("-r")) && (command.contains("-c") || command.contains("-s") || command.contains("-n") || command.contains("-e")))
 		{
 			return true;
 		}
-		else if (!(command.contains("-r") && command.contains("-o")))
+		else if (!(command.contains("-r")))
 		{
 			sender.sendToChannel(sender.senderName + ": Command must have reply argument. Specify a -r argument and try again.");
 		}
