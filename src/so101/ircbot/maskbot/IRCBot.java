@@ -178,6 +178,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new Command5050());
 		CommandRegistry.registerCommand(new CommandPics());
 		CommandRegistry.registerCommand(new CommandSay());
+		CommandRegistry.registerCommand(new CommandJavaScript());
 		//CommandRegistry.registerCommand(new CommandLeave());
 		CommandRegistry.registerCommand(new CommandGame());
 		CommandRegistry.registerCommand(new CommandGames());
@@ -194,6 +195,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandCommands());
 		CommandRegistry.registerCommand(new CommandAuthor());
 		CommandRegistry.registerCommand(new CommandConfig());
+		CommandRegistry.registerCommand(new CommandMath());
 		CommandRegistry.registerCommand(new CommandToggle());
 		CommandRegistry.registerCommand(new CommandSudo());
 		
@@ -325,7 +327,7 @@ public class IRCBot
 	public void closeConnections()
 	{
 		IRCBot.log("Closing connections, exiting.", Log.INFO);
-		this.sendToIRC("QUIT :Bot closed.");
+		this.sendToIRC("EXIT :Bot closed.");
 		
 		try
 		{
@@ -476,7 +478,7 @@ public class IRCBot
 		else if (command.equals("NICK") && parser.nick.equals(getNick()))
 		{
 			this.management.BOT_CRESIDENTIALS.remove("NICK");
-			this.management.BOT_CRESIDENTIALS.put("NICK", parser.getTrailing());
+			this.management.BOT_CRESIDENTIALS.put("NICK", parser.getNick());
 		}
 		else if (command.equals("INVITE"))
 		{
@@ -654,5 +656,13 @@ public class IRCBot
 	public static Map<String, Object> getGlobalVars()
 	{
 		return IRCBot.getInstance().management.BOT_CRESIDENTIALS;
+	}
+	
+	public ChannelSender getRoot()
+	{
+		ChannelSender s = new ChannelSender();
+		s.senderName = (String) IRCBot.getInstance().management.getBotGlobalVariable("ROOT");
+		s.channelName = "";
+		return s;
 	}
 }
