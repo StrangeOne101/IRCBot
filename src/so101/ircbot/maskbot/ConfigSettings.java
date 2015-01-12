@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +16,15 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
+import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import so101.ircbot.maskbot.commands.CommandNotes;
 import so101.ircbot.maskbot.games.MapGame;
 import so101.ircbot.maskbot.games.Player;
 import so101.ircbot.maskbot.handlers.CookieHandler;
@@ -116,6 +121,18 @@ public class ConfigSettings
 		}
 		JsonObject mapGamePlayers = playersBuilder.build();
 		
+		JsonObjectBuilder notesBuilder = Json.createObjectBuilder();
+		for (String k1 : CommandNotes.notes.keySet())
+		{
+			JsonArrayBuilder ab = Json.createArrayBuilder();
+			for (String k2 : CommandNotes.notes.get(k1))
+			{
+				ab.add(k2);
+			}
+			notesBuilder.add(k1, ab.build());
+		}
+		JsonObject notesO = notesBuilder.build();
+		
 		JsonObject json = Json.createObjectBuilder()
 				.add("ChatCommands", arrays[2])
 				.add("Channels", arrays[0])
@@ -124,6 +141,7 @@ public class ConfigSettings
 				.add("Cookies", cookies)
 				.add("MapGamePlayers", mapGamePlayers)
 				.add("GlobalVars", vars)
+				.add("Notes", notesO)
 				.build();
 		FileWriter writer;
 		try 
@@ -166,6 +184,7 @@ public class ConfigSettings
 				JsonObject jObjectPerms = json.getJsonObject("Permissions");
 				JsonObject jObjectMGPlayers = json.getJsonObject("MapGamePlayers");
 				JsonObject jObjectGlobalVars = json.getJsonObject("GlobalVars");
+				JsonObject jObjectNotes = json.getJsonObject("Notes");
 				reader.close();
 				
 				//Debug
@@ -260,6 +279,21 @@ public class ConfigSettings
 					for (String j : jObjectPerms.keySet())
 					{
 						PermissionsManager.permissionTable.put(j, jObjectPerms.getInt(j));
+					}
+				}
+				
+				if (jObjectNotes != null)
+				{
+					for (String j : jObjectNotes.keySet())
+					{
+						JsonArray array = jObjectNotes.getJsonArray(j);
+						List<String> l = new ArrayList<String>();
+						for (int i = 0; i < array.size(); i++)
+						{
+							l.add(StringEscapeUtils.unescapeJava(array.getString(i)));
+							//l.add(s.)
+						}
+						CommandNotes.notes.put(j, l);
 					}
 				}
 				reader.close();
