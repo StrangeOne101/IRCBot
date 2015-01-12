@@ -35,10 +35,14 @@ public class CommandJavaScript implements IBotCommand
 		try 
 		{
 			manager.eval(Utils.formatArrayToString(args));
-			if (!writer.toString().equals(""))
+			for (String s : writer.toString().split("\n"))
 			{
-				sender.sendToChannel("> " + writer.toString());
+				if (!writer.toString().equals(""))
+				{
+					sender.sendToChannel("> " + s);
+				}
 			}
+			
 			writer.flush();
 			writer.close();
 			writer = new StringWriter();
@@ -49,9 +53,9 @@ public class CommandJavaScript implements IBotCommand
 		catch (ScriptException e) 
 		{
 			String s = e.getLocalizedMessage();
-			if (e.getLocalizedMessage().split("\\:").length > 2)
+			if (e.getLocalizedMessage().split("\\:").length > 0)
 			{
-				s = e.getLocalizedMessage().split("\\:")[2].split("\\(")[0];
+				s = e.getLocalizedMessage().split("\\:")[e.getLocalizedMessage().split("\\:").length - 1].split("\\(")[0];
 			}
 			
 			sender.sendToChannel(sender.senderName + ": Parsing error - " + s);
