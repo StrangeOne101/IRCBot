@@ -2,6 +2,7 @@ package so101.ircbot.maskbot.commands;
 
 import so101.ircbot.maskbot.IBotCommand;
 import so101.ircbot.maskbot.IRCBot;
+import so101.ircbot.maskbot.ThreadedProcess;
 import so101.ircbot.maskbot.Utils;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
 
@@ -19,7 +20,7 @@ public class CommandQuit implements IBotCommand
 	{
 		String commandargs = " " + Utils.formatArrayToString(args);
 		
-		boolean silent = commandargs.contains(" -s ");
+		boolean silent = commandargs.contains(" -s");
 		String message = "";
 		if (commandargs.contains(" -m "))
 		{
@@ -42,6 +43,28 @@ public class CommandQuit implements IBotCommand
 				}
 			}
 		}
+		else if (commandargs.contains(" -n"))
+		{
+			final String s = IRCBot.getNick();
+			sender.sendToServer("NICK " + s + "|Offline");
+			ThreadedProcess p = new ThreadedProcess() 
+			{
+				@Override
+				public void run() 
+				{
+					try 
+					{
+						Thread.sleep(1000L);
+					} 
+					catch (InterruptedException e) 
+					{
+					}
+					IRCBot.getGlobalVars().remove("NICK");	
+					IRCBot.getGlobalVars().put("NICK", s);
+				}
+			};
+			p.start();
+		}
 		if (!silent && message.equals(""))
 		{
 			sender.sendToChannel("Laters!");
@@ -51,6 +74,16 @@ public class CommandQuit implements IBotCommand
 			sender.sendToChannel(message);
 		}
 		
+		try 
+		{
+			if (commandargs.contains(" -n"))
+			{
+				Thread.sleep(1500L);
+			}
+		} 
+		catch (InterruptedException e) 
+		{
+		}
 		IRCBot.getInstance().closeConnections();
 		return true;
 	}
