@@ -15,7 +15,8 @@ public enum ChatColors
 	DARKPURPLE("\u000306"),
 	GREY("\u000314"),
 	BLACK("\u000301"),
-	BOLD("\u0002")
+	BOLD("\u0002"),
+	RESET("\u0003")
 	;
 	
 	ChatColors(String s) 

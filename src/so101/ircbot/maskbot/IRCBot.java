@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -96,6 +97,7 @@ public class IRCBot
 		public String senderName;
 		public void sendToChannel(String line)
 		{
+			line = addColors(line);
 			if (mutedChannels.contains(this.channelName))
 			{
 				this.sendToSender(line);
@@ -111,11 +113,13 @@ public class IRCBot
 		
 		public void sendToServer(String line)
 		{
+			line = addColors(line);
 			sendToIRC(line);
 		}
 		
 		public void sendToSender(String line)
 		{
+			line = addColors(line);
 			sendToIRC("PRIVMSG " + senderName + " :" + line);
 		}
 	}
@@ -198,6 +202,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandMath());
 		CommandRegistry.registerCommand(new CommandToggle());
 		CommandRegistry.registerCommand(new CommandSudo());
+		CommandRegistry.registerCommand(new CommandNotes());
 		
 		CommandRegistry.registerCommandHandler(new CookieHandler());
 		CommandRegistry.registerCommandHandler(new MuteHandler());
@@ -232,6 +237,7 @@ public class IRCBot
 		for (Runnable r : this.onLoadThreads)
 		{
 			r.run();
+			this.onLoadThreads.remove(r);
 		}
 		
 		for (String s : this.channels)
@@ -261,6 +267,7 @@ public class IRCBot
 		//IRCLog.forceSaveLog();
 		//ConfigSettings.testYaml();
 		
+		IRCBot.getInstance().sendToIRC("NICK " + getNick());
 	}
 	
 	public void onDisconnect()
@@ -314,13 +321,14 @@ public class IRCBot
 				e.printStackTrace();
 			}
 		}
-		if (line != null)
+		try 
 		{
 			IRCBot.toServer.print(line + "\r\n");
 			IRCBot.toServer.flush();
 			IRCBot.log("Bot --> Server: " + line, Log.LOG);
 			this.ticksSinceLastSend = 0;
 		}
+		catch (NullPointerException e) {}
 	}
 
 	/**Close current connections*/
@@ -366,14 +374,9 @@ public class IRCBot
 		{
 			if (!shutdown)
 			{
-				String line = fromServer.readLine();
-				//String log = System.console().readLine();
-				/*if (log != null)
+				try
 				{
-					this.threadedLogs.add(log);
-				}*/
-				if (line != null)
-				{
+					String line = fromServer.readLine();
 					processLineFromServer(line);
 					this.ticksSinceLastSend ++;
 					if (this.tickManager == 9)
@@ -381,43 +384,80 @@ public class IRCBot
 						this.tickManager = 0;
 					}
 					else
+					{
 						tickManager ++;
-				}
-				else
-				{
-					// a null line indicates that our server closed the connection
-					IRCBot.log("READ a null line", Log.WARNING);
-					IRCBot.log("That means server has closed the connection", Log.WARNING);
-					IRCBot.log("Or something wrong happened in the network", Log.WARNING);
-					closeConnections();
+					}
 						
-					try
-					{
-						Thread.sleep(5000);
-					}
-					catch(InterruptedException e)
-					{
-					}
-				
-					enabled = false;
-					//threadOn = false;
-					// Now let's connect again
+				}
+				catch (NullPointerException e2) 
+				{
+					System.out.println("Read a null line from the server!");
+					System.out.println("This means something went wrong with the connection to the server. Attempting to reboot and fix the problem.");						
+					
 					BotRestarter.restartApplication(new Runnable() {
 
 						@Override
 						public void run() 
 						{
-							IRCBot.log("Restarting! :D", Log.INFO);
-						}});
+							closeConnections();
+						}
+					});
 				}
 			}
-		}	
+		}
+		catch (SocketTimeoutException e)
+		{
+			System.out.println("Read SocketTimeoutException from Server. Attempting to reconnect...");
+			try
+			{
+				chatSocket.close();
+				fromServer.close();
+				toServer.close();
+			}
+			catch(IOException e1)
+			{
+				IRCBot.log("Error occured while closing connections: " + e1.toString(), Log.SEVERE);
+			}
+		
+			chatSocket = null;
+			fromServer = null;
+			toServer = null;
+			connected = false;
+			this.onLoadThreads.add(new Runnable() {
+
+				@Override
+				public void run() {
+					DateFormat dateFormat = new SimpleDateFormat("HH:mma (dd/MM/yy)");
+					Date date = new Date();
+					IRCBot.getInstance().getRoot().sendToSender(IRCBot.getInstance().getRoot().senderName + ": A SocketTimeOutException occured at " + dateFormat.format(date) + " but was handled and dealt with.");
+				}
+				
+			});
+			onDisconnect();
+			connect();
+		}
 		catch(IOException e)
 		{
 			System.out.println("Read Exception from Server. Exception is something like:");
 			System.out.println(e);
 			enabled = false;
+			System.out.println("Attempting to restart bot to fix...");
+			try 
+			{
+				BotRestarter.restartApplication(new Runnable() {
+					@Override
+					public void run() {}
+				});
+			} 
+			catch (IOException e1) 
+			{
+				IRCBot.log("An error while restarting bot!", Log.SEVERE);
+				e1.printStackTrace();
+				System.out.println("Bot may have to be restarted manually.");
+				this.closeConnections();
+			}
 		}
+		
 		try 
 		{
 			Thread.sleep(100L);
@@ -445,21 +485,6 @@ public class IRCBot
 	public void processLineFromServer(String line)
 	{
 		IRCBot.log("Server --> Bot: " + line, Log.LOG);
-		
-		line = line.replaceAll("&(?i)" + ChatColors.BLACK, ChatColors.BLACK.s);
-		line = line.replaceAll("&(?i)" + ChatColors.RED, ChatColors.RED.s);
-		line = line.replaceAll("&(?i)" + ChatColors.DARKRED, ChatColors.DARKRED.s);
-		line = line.replaceAll("&(?i)" + ChatColors.ORANGE, ChatColors.ORANGE.s);
-		line = line.replaceAll("&(?i)" + ChatColors.YELLOW, ChatColors.YELLOW.s);
-		line = line.replaceAll("&(?i)" + ChatColors.GREEN, ChatColors.GREEN.s);
-		line = line.replaceAll("&(?i)" + ChatColors.DARKGREEN, ChatColors.DARKGREEN.s);
-		line = line.replaceAll("&(?i)" + ChatColors.CYAN, ChatColors.CYAN.s);
-		line = line.replaceAll("&(?i)" + ChatColors.BLUE, ChatColors.BLUE.s);
-		line = line.replaceAll("&(?i)" + ChatColors.DARKBLUE, ChatColors.DARKBLUE.s);
-		line = line.replaceAll("&(?i)" + ChatColors.PURPLE, ChatColors.PURPLE.s);
-		line = line.replaceAll("&(?i)" + ChatColors.DARKPURPLE, ChatColors.DARKPURPLE.s);
-		line = line.replaceAll("&(?i)" + ChatColors.GREY, ChatColors.GREY.s);
-		line = line.replaceAll("&(?i)" + ChatColors.BOLD, ChatColors.BOLD.s);
 		
 		IRCParser parser = new IRCParser(line);
 		String command = parser.getCommand();
@@ -664,5 +689,25 @@ public class IRCBot
 		s.senderName = (String) IRCBot.getInstance().management.getBotGlobalVariable("ROOT");
 		s.channelName = "";
 		return s;
+	}
+	
+	private String addColors(String line)
+	{
+		line = line.replaceAll("&(?i)" + ChatColors.RED, ChatColors.RED.s);
+		line = line.replaceAll("&(?i)" + ChatColors.DARKRED, ChatColors.DARKRED.s);
+		line = line.replaceAll("&(?i)" + ChatColors.ORANGE, ChatColors.ORANGE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.YELLOW, ChatColors.YELLOW.s);
+		line = line.replaceAll("&(?i)" + ChatColors.GREEN, ChatColors.GREEN.s);
+		line = line.replaceAll("&(?i)" + ChatColors.DARKGREEN, ChatColors.DARKGREEN.s);
+		line = line.replaceAll("&(?i)" + ChatColors.CYAN, ChatColors.CYAN.s);
+		line = line.replaceAll("&(?i)" + ChatColors.BLUE, ChatColors.BLUE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.DARKBLUE, ChatColors.DARKBLUE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.PURPLE, ChatColors.PURPLE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.DARKPURPLE, ChatColors.DARKPURPLE.s);
+		line = line.replaceAll("&(?i)" + ChatColors.GREY, ChatColors.GREY.s);
+		line = line.replaceAll("&(?i)" + ChatColors.BOLD, ChatColors.BOLD.s);
+		line = line.replaceAll("&(?i)" + ChatColors.BLACK, ChatColors.BLACK.s);
+		line = line.replaceAll("&(?i)" + ChatColors.RESET, ChatColors.RESET.s);
+		return line;
 	}
 }
