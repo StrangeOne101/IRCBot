@@ -32,7 +32,7 @@ public class TestWindow {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 720, 400);
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
 		      public void windowClosing(WindowEvent e) {
@@ -40,6 +40,7 @@ public class TestWindow {
 		    	  if (i == JOptionPane.OK_OPTION)
 		    	  {
 		    		  IRCBot.getInstance().closeConnections();
+		    		  System.exit(0);
 		    	  }
 		      }
 		    });
