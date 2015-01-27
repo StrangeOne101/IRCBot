@@ -24,17 +24,8 @@ import javax.json.JsonReader;
 import so101.ircbot.maskbot.commands.*;
 import so101.ircbot.maskbot.commands.dex.Pokedex;
 import so101.ircbot.maskbot.games.MapGame;
-import so101.ircbot.maskbot.handlers.ChannelHandler;
-import so101.ircbot.maskbot.handlers.CookieHandler;
-import so101.ircbot.maskbot.handlers.GeneralCommandHandler;
-import so101.ircbot.maskbot.handlers.LeaveHandler;
-import so101.ircbot.maskbot.handlers.MapGameHandler;
-import so101.ircbot.maskbot.handlers.MuteHandler;
-import so101.ircbot.maskbot.handlers.PermHander;
-import so101.ircbot.maskbot.handlers.PingHandler;
-import so101.ircbot.maskbot.managers.DictionaryManager;
-import so101.ircbot.maskbot.managers.PermissionsManager;
-import so101.ircbot.maskbot.managers.RedditManager;
+import so101.ircbot.maskbot.handlers.*;
+import so101.ircbot.maskbot.managers.*;
 
 public class IRCBot
 {
@@ -50,6 +41,7 @@ public class IRCBot
 	protected BotSettings management;
 	
 	protected IRCGui gui = null;
+	protected TestWindow gui_ = null;
 	
 	protected int ticksSinceLastSend = 0;
 	protected int messagesInLastMin = 0;
@@ -130,8 +122,10 @@ public class IRCBot
 		instance = this;
 		this.management = new BotSettings();
 		new IRCLog();
+		this.gui_ = new TestWindow();
 		IRCBot.log("Loading data from config", Log.INFO);
 		ConfigSettings.loadData();
+		this.gui_.frame.setTitle(IRCBot.getNick() + " - Espernet IRCBot");
 		
 		if (!this.enabled)
 		{
@@ -203,6 +197,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandToggle());
 		CommandRegistry.registerCommand(new CommandSudo());
 		CommandRegistry.registerCommand(new CommandNotes());
+		CommandRegistry.registerCommand(new CommandPissOff());
 		
 		CommandRegistry.registerCommandHandler(new CookieHandler());
 		CommandRegistry.registerCommandHandler(new MuteHandler());
@@ -358,6 +353,7 @@ public class IRCBot
 		ConfigSettings.saveData();
 		IRCBot.log("Data saved. Bot closed.", Log.INFO);
 		IRCLog.INSTANCE.shutdownLogger();
+		System.exit(0);
 	}
 
 	public void run() 
@@ -562,11 +558,18 @@ public class IRCBot
             }
 			
 			String[] tempArgs = messageIRC.toLowerCase().split(" ");
+			
+			if (tempArgs.length == 0)
+			{
+				return;
+			}
+			
 			if (destination.startsWith("#") && tempArgs.length > 0 && tempArgs[0].startsWith(getNick().toLowerCase()))
 		   	{
 				//If in channel and user uses prefix, then enable
 				messageIRC = messageIRC.replaceFirst(messageIRC.split(" ")[0] + " ", "");
 				gotPrefix = true;
+				
 		   	}
 			else if (destination.startsWith(getNick()))
 			{
@@ -656,6 +659,10 @@ public class IRCBot
 	public static void log(String line, Log log)
 	{
 		System.out.println("[" + log + "] " + line);
+		if (IRCBot.getInstance().gui_ != null)
+		{
+			IRCBot.getInstance().gui_.textArea.setText(IRCBot.getInstance().gui_.textArea.getText() + "\n" + "[" + log + "] " + line);
+		}
 	}
 	
 	/**Returns the nickname of the bot.*/
@@ -689,6 +696,11 @@ public class IRCBot
 		s.senderName = (String) IRCBot.getInstance().management.getBotGlobalVariable("ROOT");
 		s.channelName = "";
 		return s;
+	}
+	
+	public void executeCommand(String line)
+	{
+		this.processLineFromServer(":" + getNick() + "!SELF@SELF.IRCBOT PRIVMSG " + getNick() + " :" + line);
 	}
 	
 	private String addColors(String line)
