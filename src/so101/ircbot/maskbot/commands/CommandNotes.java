@@ -31,7 +31,7 @@ public class CommandNotes implements IBotCommand
 		{
 			sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " notes <add/remove> <note>\" or \"" + IRCBot.getNick() + " notes <[keyword]/[number]/random>\" or \"" + IRCBot.getNick() + " notes <user> [note]\"");
 		}
-		if (args[0].toLowerCase().equals("add"))
+		else if (args[0].toLowerCase().equals("add"))
 		{
 			if (args.length < 2)
 			{
