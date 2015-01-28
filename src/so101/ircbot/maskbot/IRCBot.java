@@ -197,7 +197,6 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandToggle());
 		CommandRegistry.registerCommand(new CommandSudo());
 		CommandRegistry.registerCommand(new CommandNotes());
-		CommandRegistry.registerCommand(new CommandPissOff());
 		
 		CommandRegistry.registerCommandHandler(new CookieHandler());
 		CommandRegistry.registerCommandHandler(new MuteHandler());

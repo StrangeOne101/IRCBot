@@ -19,6 +19,8 @@ config.cfg
 CRASH.txt
 .classpath
 .settings/
+src - Copy
+webpage.html
 .loadpath
 
 # External tool builders
