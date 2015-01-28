@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.swing.JOptionPane;
 
 import so101.ircbot.maskbot.commands.*;
 import so101.ircbot.maskbot.commands.dex.Pokedex;
@@ -113,6 +114,29 @@ public class IRCBot
 		{
 			line = addColors(line);
 			sendToIRC("PRIVMSG " + senderName + " :" + line);
+		}
+	}
+	
+	protected class RootSender extends ChannelSender
+	{
+		@Override
+		public void sendToChannel(String line) 
+		{
+			if (line.toLowerCase().startsWith(IRCBot.getNick().toLowerCase() + ": ")) 
+			{
+				line = line.replaceFirst(line.split(" ")[0], "");
+			}
+			JOptionPane.showMessageDialog(IRCBot.getInstance().gui_.frame, line);
+		}
+		
+		@Override
+		public void sendToSender(String line) 
+		{
+			if (line.toLowerCase().startsWith(IRCBot.getNick().toLowerCase() + ": ")) 
+			{
+				line = line.replaceFirst(line.split(" ")[0], "");
+			}
+			JOptionPane.showMessageDialog(IRCBot.getInstance().gui_.frame, line);
 		}
 	}
 	
@@ -537,9 +561,21 @@ public class IRCBot
 			csender.senderName = parser.getNick();
 			this.LASTUSEDCHANNEL = csender.channelName;
 			
-			if (!PermissionsManager.getUserHasPermission(csender, -1))
+			if (PermissionsManager.permissionTable.containsKey(csender.senderName.toLowerCase()))
 			{
-				return;
+				int userPerm = PermissionsManager.permissionTable.get(csender.senderName.toLowerCase());
+				if (userPerm <= -2)
+				{
+					return;
+				}
+			}
+			
+			if (csender.channelName.equalsIgnoreCase("**Root**") && csender.senderName.equalsIgnoreCase(IRCBot.getNick()))
+			{
+				csender = new RootSender();
+				csender.channelName = IRCBot.getNick();
+				csender.senderName = IRCBot.getNick();
+				
 			}
 			
 			if (csender.senderName.toLowerCase().equals("mcobot") && csender.channelName.toLowerCase().contains("minecraftonline"))
@@ -570,7 +606,7 @@ public class IRCBot
 				gotPrefix = true;
 				
 		   	}
-			else if (destination.startsWith(getNick()))
+			else if (destination.startsWith(getNick()) || destination.equalsIgnoreCase("**Root**"))
 			{
 				//If user is in PRIVMSG, then prefixes arent required
 				//IRCBot.log("TEST WORKED", IRCLog.DEBUG);
