@@ -9,6 +9,7 @@ import so101.ircbot.maskbot.IBotCommand;
 import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
 import so101.ircbot.maskbot.Utils;
+import so101.ircbot.maskbot.managers.PermissionsManager;
 
 public class CommandCommands implements IBotCommand 
 {
@@ -233,6 +234,20 @@ public class CommandCommands implements IBotCommand
 				{
 					sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands preview <number>\"");
 				}
+			}
+			else if (args[0].equalsIgnoreCase("register"))
+			{
+				if (!PermissionsManager.getUserHasPermission(sender, 3))
+				{
+					sender.sendToChannel("Sorry," + sender.senderName + ". You must have at least admin bot permissions to use this command!");
+					return true;
+				}
+				if (args.length > 1)
+				{
+					return true;
+				}
+				sender.sendToChannel(sender.senderName + ": Command usage is \"" + IRCBot.getNick() + " commands register <command_file>\" or . \"" + IRCBot.getNick() + " commands register help\". Use help for more infomation on how to ");
+				
 			}
 			else
 			{

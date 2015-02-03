@@ -13,6 +13,7 @@ import java.net.SocketTimeoutException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -177,6 +178,10 @@ public class IRCBot
 		DictionaryManager.loadData();
 		IRCBot.log("Dictionary Data Loaded.", Log.INFO);
 		
+		IRCBot.log("Adding root permission...", Log.INFO);
+		PermissionsManager.setUserPermission(IRCBot.getNick(), 5);
+		IRCBot.log("Permission set.", Log.INFO);
+		
 		IRCBot.log("Registering Commands", Log.INFO);
 		//CommandRegistry.registerCommand(new CommandJoin());
 		CommandRegistry.registerCommand(new CommandQuit());
@@ -210,7 +215,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandCookie());
 		CommandRegistry.registerCommand(new CommandRestart());
 		CommandRegistry.registerCommand(new CommandRandom());
-		//CommandRegistry.registerCommand(new CommandDebug());
+		CommandRegistry.registerCommand(new CommandDebug());
 		CommandRegistry.registerCommand(new CommandRecover());
 		CommandRegistry.registerCommand(new CommandReal());
 		CommandRegistry.registerCommand(new CommandDictionary());
@@ -221,6 +226,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandToggle());
 		CommandRegistry.registerCommand(new CommandSudo());
 		CommandRegistry.registerCommand(new CommandNotes());
+		CommandRegistry.registerCommand(new CommandTell());
 		
 		CommandRegistry.registerCommandHandler(new CookieHandler());
 		CommandRegistry.registerCommandHandler(new MuteHandler());
@@ -389,6 +395,23 @@ public class IRCBot
 			ConfigSettings.saveData();
 			IRCBot.log("Data saved.", Log.INFO);
 		}
+		
+		for (int i = 0; i < CommandTell.dates.size(); i++)
+		{
+			CommandTell.TellEntry entry = CommandTell.dates.get(i);
+			long current = Calendar.getInstance().getTimeInMillis();
+			if (current >= entry.getTime()) 
+			{
+				String s = entry.getUser().startsWith("#") ? "" : entry.getUser() + ": ";
+			    IRCBot.getInstance().sendToIRC("PRIVMSG " + entry.getUser() + " :" + s + entry.getSender() + " says \"" + entry.getMessage() + "\"");
+			    if (debugMode)
+			    {
+			    	IRCBot.getInstance().sendToIRC("PRIVMSG " + entry.getUser() + " :DEBUG: " + entry.getTime() + " | " + current);
+			    }
+			    CommandTell.dates.remove(i);
+			}
+		}
+		
 		try
 		{
 			if (!shutdown)
@@ -519,10 +542,13 @@ public class IRCBot
 		{
 			this.sendToIRC("PONG :" + parser.getTrailing());
 		}
-		else if (command.equals("NICK") && parser.nick.equals(getNick()))
+		else if (command.equals("NICK") && parser.getNick().equalsIgnoreCase(IRCBot.getNick()))
 		{
+			PermissionsManager.setUserPermission(IRCBot.getNick(), 0);
 			this.management.BOT_CRESIDENTIALS.remove("NICK");
-			this.management.BOT_CRESIDENTIALS.put("NICK", parser.getNick());
+			IRCBot.log("Nick changed to \"" + parser.getTrailing() + "\"", Log.INFO);
+			this.management.BOT_CRESIDENTIALS.put("NICK", parser.getTrailing());
+			PermissionsManager.setUserPermission(IRCBot.getNick(), 5);
 		}
 		else if (command.equals("INVITE"))
 		{
@@ -564,7 +590,7 @@ public class IRCBot
 			if (PermissionsManager.permissionTable.containsKey(csender.senderName.toLowerCase()))
 			{
 				int userPerm = PermissionsManager.permissionTable.get(csender.senderName.toLowerCase());
-				if (userPerm <= -2)
+				if (userPerm <= -2 && !(messageIRC.split(" ").length >= 2 && messageIRC.split(" ")[1].equalsIgnoreCase("recover")))
 				{
 					return;
 				}
@@ -657,11 +683,11 @@ public class IRCBot
 				IRCBot.getInstance().sendToIRC("PRIVMSG " + this.LASTUSEDCHANNEL + " :ERROR: Crash detected while processing command!! Log saved to CRASH.txt");
 				DateFormat dateFormat = new SimpleDateFormat("HH:mma (dd/MM/yy)");
 				Date date = new Date();
-				IRCBot.getInstance().sendToIRC("PRIVMSG Strange :Strange: a crash was deteced at " + dateFormat.format(date));
-				IRCBot.getInstance().sendToIRC("PRIVMSG Strange :" + e.toString());
-				IRCBot.getInstance().sendToIRC("PRIVMSG Strange :" + e.getStackTrace()[0]);
-				IRCBot.getInstance().sendToIRC("PRIVMSG Strange :" + e.getStackTrace()[1]);
-				IRCBot.getInstance().sendToIRC("PRIVMSG Strange :" + e.getStackTrace()[2]);
+				IRCBot.getInstance().getRoot().sendToSender("%n: a crash was deteced at " + dateFormat.format(date));
+				IRCBot.getInstance().getRoot().sendToSender(e.toString());
+				IRCBot.getInstance().getRoot().sendToSender(e.getStackTrace()[0].toString());
+				IRCBot.getInstance().getRoot().sendToSender(e.getStackTrace()[1].toString());
+				IRCBot.getInstance().getRoot().sendToSender(e.getStackTrace()[2].toString());
 				File file = new File("CRASH.txt");
 				if (!file.exists()) 
 				{
@@ -680,7 +706,7 @@ public class IRCBot
 		}
 		else
 		{
-			if (line.endsWith("+i") && line.contains("MODE") && line.contains(getNick()))
+			if ((line.endsWith("+i") || line.endsWith("+Zi")) && line.contains("MODE") && line.contains(getNick()))
 			{
 				this.connected = true;
 				this.onConnect();

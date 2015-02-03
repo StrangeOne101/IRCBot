@@ -28,8 +28,6 @@ public class PermissionsManager
 			permissionTable.put("Strange", 4);
 			permissionTable.put("StrangeOne101", 3);
 		}
-		permissionTable.put(IRCBot.getNick(), 5);
-		
 	}
 	
 	public static boolean getUserHasPermission(ChannelSender sender, int perm)

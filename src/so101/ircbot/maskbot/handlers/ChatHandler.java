@@ -66,11 +66,12 @@ public class ChatHandler implements ICommandHandler
 								IRCBot.getInstance().getRoot().sendToSender(IRCBot.getInstance().getRoot().senderName + ": An error was detected while parsing chat command " + i + " - Argument -a in invalid format!");
 								break;
 							}
-							s1 = s1.replaceFirst("\\[", "");
-							String s2 = s1.split("\\]")[0];
-							s1 = s1.split("\\]")[1];
+							s1 = s1.replaceFirst("\\[", ""); //Remove left bracket
+							String s2 = s1.split("\\]")[0]; //Get everything in between
+							//s1 = s1.split("\\]")[1]; //Whats left
+							s1 = s1.replaceFirst("\\]", ""); //Whats left
 							String s3 = "";
-							if (s2.contains("-"))
+							if (s2.contains("-")) //If middle contains -
 							{
 								int i1 = Integer.parseInt(s2.split("\\-")[0]); //Left hand side of -
 								int i2 = Integer.parseInt(s2.split("\\-")[1]); //Right hand side of -
@@ -88,13 +89,13 @@ public class ChatHandler implements ICommandHandler
 									}
 									else if (i4 >= 0)
 									{
-										s3 = s3 + (i4 == i1 ? "" : " ") + args[i4];
+										s3 = s3 + (i4 == i1 ? "" : " ") + args[i4]; //Add the arguments
 									}
 								}								
 							}
-							else if (s2.contains("+"))
+							else if (s2.contains("+")) //If middle contains +
 							{
-								int i1 = Integer.parseInt(s2.split("+")[0]); //Left hand side of -
+								int i1 = Integer.parseInt(s2.split("\\+")[0]); //Left hand side of +
 								for (int i4 = i1; i4 < args.length; i4++) //Loop through arguments
 								{
 									if (i4 >= 0)
@@ -160,6 +161,10 @@ public class ChatHandler implements ICommandHandler
 							flag1 = true;
 							break;
 						}
+						if (curFormat.startsWith("-a"))
+						{
+							arguments.add(new ChatArgument(thingToLookFor, ArgumentType.ARGS, curString));
+						}
 					}
 					if (!args[args.length - 1].equals(s1))
 					{
@@ -177,13 +182,13 @@ public class ChatHandler implements ICommandHandler
 			{
 				reply = reply.replaceFirst("~", "");
 			}*/
-			if (IRCBot.getInstance().debugMode)
+			/*if (IRCBot.getInstance().debugMode)
 			{
 				IRCBot.alertRoots(contains.toString());
 				IRCBot.alertRoots(equals.toString());
 				IRCBot.alertRoots(startswith.toString());
 				IRCBot.alertRoots(endswith.toString());
-			}
+			}*/
 			/*for (String s2 : contains)
 			{
 				if (!message.toLowerCase().contains(s2.toLowerCase()))
@@ -355,6 +360,6 @@ public class ChatHandler implements ICommandHandler
 	
 	public enum ArgumentType
 	{
-		CONTAINS,STARTSWITH,ENDSWITH,EQUALS,REPLY,OPTION,DELAY;
+		CONTAINS,STARTSWITH,ENDSWITH,EQUALS,REPLY,OPTION,DELAY,ARGS;
 	}
 }
