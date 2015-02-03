@@ -16,6 +16,11 @@ public class CommandMath implements IBotCommand
 {
 	public ScriptEngine manager = new ScriptEngineManager().getEngineByName("js");
 
+	public CommandMath() 
+	{
+		manager.put("so101", null);
+	}
+	
 	@Override
 	public String getCommandName() 
 	{
