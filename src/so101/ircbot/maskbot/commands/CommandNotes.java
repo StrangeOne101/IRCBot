@@ -57,8 +57,15 @@ public class CommandNotes implements IBotCommand
 			else
 			{
 				int j = notes.get(sender.senderName.toLowerCase()).size();
-				int i = new Random().nextInt(j);
-				sender.sendToChannel(sender.senderName + ": " + notes.get(sender.senderName.toLowerCase()).get(i) + " (Note " + (i + 1) + "/" + j + ")");
+				if (j >= 1)
+				{
+					int i = new Random().nextInt(j);
+					sender.sendToChannel(sender.senderName + ": " + notes.get(sender.senderName.toLowerCase()).get(i) + " (Note " + (i + 1) + "/" + j + ")");
+				}
+				else
+				{
+					sender.sendToChannel(sender.senderName + ": No notes found!");
+				}
 			}
 		}
 		else if (args[0].toLowerCase().equals("remove"))
