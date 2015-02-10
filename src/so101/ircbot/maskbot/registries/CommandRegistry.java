@@ -1,10 +1,14 @@
-package so101.ircbot.maskbot;
+package so101.ircbot.maskbot.registries;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import so101.ircbot.maskbot.IBotCommand;
+import so101.ircbot.maskbot.ICommandHandler;
+import so101.ircbot.maskbot.IRCBot;
+import so101.ircbot.maskbot.Log;
 import so101.ircbot.maskbot.handlers.ChatHandler;
 
 public class CommandRegistry 

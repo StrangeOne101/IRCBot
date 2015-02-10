@@ -28,6 +28,8 @@ import so101.ircbot.maskbot.commands.dex.Pokedex;
 import so101.ircbot.maskbot.games.MapGame;
 import so101.ircbot.maskbot.handlers.*;
 import so101.ircbot.maskbot.managers.*;
+import so101.ircbot.maskbot.registries.CommandRegistry;
+import so101.ircbot.maskbot.registries.LanguageRegistry;
 
 public class IRCBot
 {
@@ -74,6 +76,7 @@ public class IRCBot
 	public boolean debugMode = false;
 	
 	public String LASTUSEDCHANNEL;
+	public ChannelSender LASTUSEDSENDER;
 	
 	public static void main(String[] args) 
 	{
@@ -150,6 +153,11 @@ public class IRCBot
 		this.gui_ = new TestWindow();
 		IRCBot.log("Loading data from config", Log.INFO);
 		ConfigSettings.loadData();
+		
+		IRCBot.log("Loading language registry from file", Log.INFO);
+		LanguageRegistry.loadData();
+		IRCBot.log("Registry loaded.", Log.INFO);
+		
 		this.gui_.frame.setTitle(IRCBot.getNick() + " - Espernet IRCBot");
 		
 		if (!this.enabled)
@@ -227,6 +235,7 @@ public class IRCBot
 		CommandRegistry.registerCommand(new CommandSudo());
 		CommandRegistry.registerCommand(new CommandNotes());
 		CommandRegistry.registerCommand(new CommandTell());
+		CommandRegistry.registerCommand(new CommandLanguage());
 		
 		CommandRegistry.registerCommandHandler(new CookieHandler());
 		CommandRegistry.registerCommandHandler(new MuteHandler());
@@ -237,6 +246,8 @@ public class IRCBot
 		CommandRegistry.registerCommandHandler(new LeaveHandler());
 		CommandRegistry.registerCommandHandler(new MapGameHandler());
 		//CommandRegistry.registerCommandHandler(new ChatHandler());
+		
+		LanguageRegistry.loadDefaultLang();
 		
 		IRCBot.log("Grabbing Pokedex Data", Log.INFO);
 		Pokedex.fetchData(null);
@@ -371,6 +382,10 @@ public class IRCBot
 		{
 			IRCBot.log("Error occured while closing connections: " + e.toString(), Log.SEVERE);
 		}
+		catch (NullPointerException e)
+		{
+			IRCBot.log("Connections never active, still closing...", Log.WARNING);
+		}
 	
 		chatSocket = null;
 		fromServer = null;
@@ -380,6 +395,7 @@ public class IRCBot
 		IRCBot.log("IRC Connections quit.", Log.INFO);
 		IRCBot.log("Quickly saving data...", Log.INFO);
 		ConfigSettings.saveData();
+		LanguageRegistry.saveData();
 		IRCBot.log("Data saved. Bot closed.", Log.INFO);
 		IRCLog.INSTANCE.shutdownLogger();
 		System.exit(0);
@@ -603,6 +619,8 @@ public class IRCBot
 				csender.senderName = IRCBot.getNick();
 				
 			}
+			
+			this.LASTUSEDSENDER = csender;
 			
 			if (csender.senderName.toLowerCase().equals("mcobot") && csender.channelName.toLowerCase().contains("minecraftonline"))
             {
