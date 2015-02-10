@@ -5,7 +5,6 @@ import java.io.IOException;
 import so101.ircbot.maskbot.BotRestarter;
 import so101.ircbot.maskbot.IBotCommand;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
-import so101.ircbot.maskbot.registries.LanguageRegistry;
 
 public class CommandRestart implements IBotCommand 
 {
@@ -19,7 +18,7 @@ public class CommandRestart implements IBotCommand
 	@Override
 	public boolean execute(String[] args, ChannelSender sender) 
 	{
-		sender.sendToChannel(LanguageRegistry.getLangForString("bot.general.reload"));
+		sender.sendToChannel("Bot restarting... Be back shortly!");
 		try 
 		{
 			BotRestarter.restartApplication(null);

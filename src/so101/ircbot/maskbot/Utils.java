@@ -105,10 +105,4 @@ public class Utils
 		}
 		return finalString;
 	}
-	
-	/**Gets the last character of a string*/
-	public static String getLastCharacter(String string)
-	{
-		return string.split("")[string.split("").length - 2];
-	}
 }

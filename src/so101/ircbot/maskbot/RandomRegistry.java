@@ -1,4 +1,4 @@
-package so101.ircbot.maskbot.registries;
+package so101.ircbot.maskbot;
 
 import java.util.ArrayList;
 import java.util.List;

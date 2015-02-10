@@ -51,11 +51,6 @@ public class GeneralCommandHandler implements ICommandHandler {
 				{
 					if (args.length > 1)
 					{
-						if (args[1].equalsIgnoreCase(IRCBot.getNick()))
-						{
-							sender.sendToChannel(sender.senderName + ": You want me to send a message to myself?");
-							return true;
-						}
 						String s = "";
 						for (int i = 2; i < args.length; i++)
 						{

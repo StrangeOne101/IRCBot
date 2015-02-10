@@ -5,7 +5,6 @@ import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.ThreadedProcess;
 import so101.ircbot.maskbot.Utils;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
-import so101.ircbot.maskbot.registries.LanguageRegistry;
 
 public class CommandQuit implements IBotCommand
 {
@@ -68,7 +67,7 @@ public class CommandQuit implements IBotCommand
 		}
 		if (!silent && message.equals(""))
 		{
-			sender.sendToChannel(LanguageRegistry.getLangForString("bot.general.quit"));
+			sender.sendToChannel("Laters!");
 		}
 		else if (!message.equals(""))
 		{

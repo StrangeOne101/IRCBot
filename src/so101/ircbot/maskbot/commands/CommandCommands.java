@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import so101.ircbot.maskbot.ChatColors;
+import so101.ircbot.maskbot.CommandRegistry;
 import so101.ircbot.maskbot.IBotCommand;
 import so101.ircbot.maskbot.IRCBot;
 import so101.ircbot.maskbot.IRCBot.ChannelSender;
 import so101.ircbot.maskbot.Utils;
 import so101.ircbot.maskbot.managers.PermissionsManager;
-import so101.ircbot.maskbot.registries.CommandRegistry;
 
 public class CommandCommands implements IBotCommand 
 {
@@ -302,7 +302,7 @@ public class CommandCommands implements IBotCommand
 		{
 			return true;
 		}
-		else if (!command.contains("-r") && !command.contains("-l"))
+		else if (!(command.contains("-r")))
 		{
 			sender.sendToChannel(sender.senderName + ": Command must have reply argument. Specify a -r argument and try again.");
 		}
