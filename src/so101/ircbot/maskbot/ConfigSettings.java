@@ -29,6 +29,7 @@ import so101.ircbot.maskbot.games.MapGame;
 import so101.ircbot.maskbot.games.Player;
 import so101.ircbot.maskbot.handlers.CookieHandler;
 import so101.ircbot.maskbot.managers.PermissionsManager;
+import so101.ircbot.maskbot.registries.CommandRegistry;
 
 public class ConfigSettings 
 {

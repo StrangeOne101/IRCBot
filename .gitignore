@@ -15,7 +15,8 @@ logs/
 *~.nib
 local.properties
 AUTH_TOKEN.txt
-config.cfg
+*.cfg
+*.properties
 CRASH.txt
 .classpath
 .settings/
